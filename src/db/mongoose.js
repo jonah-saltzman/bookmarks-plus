@@ -1,10 +1,10 @@
 const mongoose = require('mongoose')
-const { MONGO_DEV_URL } = process.env
+const { MONGODB_URI } = process.env
 
 function connectDb() {
 	if (mongoose.connection.readyState === 0) {
 		console.log('connecting mongoose')
-		mongoose.connect(MONGO_DEV_URL, {
+		mongoose.connect(MONGODB_URI, {
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
 		})
