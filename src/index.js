@@ -10,6 +10,8 @@ const { getTweet } = require('./twt-api/find')
 const authRouter = require('./routes/authroutes')
 const passport = require('passport')
 
+const PORT = process.env.PORT || 3000
+
 const app = express()
 
 connectDb()
@@ -26,8 +28,8 @@ app.get('/', async (req, res) => {
 	res.send('hello-world')
 })
 
-app.listen(3003, async () => {
-	console.log('listening on port 3003')
+app.listen(PORT, async () => {
+	console.log(`listening on port ${PORT}`)
 })
 
 //getTweet('440322224407314432').then(data => console.log(data))
