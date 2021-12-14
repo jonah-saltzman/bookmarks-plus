@@ -5,6 +5,7 @@ const cors = require('cors')
 const helmet = require('helmet')
 const morgan = require('morgan');
 const { connectDb } = require('./db/mongoose');
+const { getTweet } = require('./twt-api/find')
 
 const app = express()
 
@@ -25,3 +26,5 @@ connectDb()
 app.listen(3003, async () => {
 	console.log('listening on port 3003')
 })
+
+getTweet('440322224407314432').then(data => console.log(data))
