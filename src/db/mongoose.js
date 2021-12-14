@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { MONGO_DEV_URL } = process.env
 
 function connectDb() {
 	if (mongoose.connection.readyState === 0) {
