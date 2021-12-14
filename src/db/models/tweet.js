@@ -35,6 +35,6 @@ const TweetSchema = new Schema({
     twtMedia: [MediaSchema]
 })
 
-const Tweet = mongoose.model('tweet', TweetSchema)
+const Tweet = mongoose.model('Tweet', TweetSchema)
 
 module.exports = Tweet
