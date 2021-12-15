@@ -16,11 +16,11 @@ const app = express()
 
 connectDb()
 
-app.use(passport.initialize())
-app.use(helmet())
 app.use(bodyParser.json())
+app.use(helmet())
 app.use(cors())
-app.use(morgan('combined'))
+//app.use(morgan('combined'))
+app.use(passport.initialize())
 app.use(authRouter)
 
 
