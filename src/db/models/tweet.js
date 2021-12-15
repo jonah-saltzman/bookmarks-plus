@@ -11,11 +11,6 @@ const TweetSchema = new Schema({
 		required: true,
 		unique: true,
 	},
-	folders: [{
-		type: Schema.Types.ObjectId,
-        ref: 'Folder',
-		required: false,
-	}],
 	twtMetrics: {
         type: Object,
         required: true
