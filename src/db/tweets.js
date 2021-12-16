@@ -1,11 +1,12 @@
 const Tweet = require('./models/tweet')
-const urlTwtIdRE = new RegExp(/\/(\d+)\?s=20/)
+const urlTwtIdRE = new RegExp(/(?:\/)(\d+)(?:\/|\?|$)/)
 const twtIdRE = new RegExp(/^\d+$/)
 
-async function searchTweet(twtId) {
-    const tweet = await Tweet.findOne({twtId: twtId})
-    console.log('search db for tweet: ', tweet)
-    return tweet ? tweet : false
+async function searchTweet(tweets) {
+    const results = await Tweet.find({
+			twtId: { $in: tweets },
+		})
+    return results.length > 0 ? results : false
 }
 
 async function addTweet(twtData) {

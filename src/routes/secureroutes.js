@@ -1,6 +1,13 @@
 const express = require('express')
 const router = express.Router()
-const { newFolder, bookmarkTweet } = require('../db/folders')
+const sendResponse = require('../sendresponse')
+const {
+    newFolder,
+    bookmarkTweet,
+    getFolder,
+    deleteFolder,
+    unBookmarkTweet
+} = require('../db/folders')
 
 // Custom middleware attaches user object to req object upon
 // successful token validation
@@ -42,25 +49,34 @@ router.post(
         newFolder(
             req.body.folderName, 
             req.userObj, 
-            async (err, folder) => {
-                if (err) {
-                    res.status(422)
-                    return res.json(err)
-                }
-                if (folder) {
-                    res.status(201)
-                    return res.json({
-                        created: true,
-                        folder: folder.folderName,
-                        message: `Successfully created folder ${folder.folderName}`
-                    })
-                }
-                res.status(500)
-                res.json({
-                    created: false,
-                    folder: false,
-                    message: 'Internal server error'
-                })
+            (err, folder) => {
+                sendResponse(req, res, err, folder)
+            }
+        )
+    }
+)
+
+router.get(
+    '/folders/:folder',
+    (req, res) => {
+        getFolder(
+            req.params.folder,
+            req.userObj,
+            (err, folder) => {
+                sendResponse(req, res, err, folder)
+            }
+        )
+    }
+)
+
+router.delete(
+    '/folders/:folder',
+    (req, res) => {
+        deleteFolder(
+            req.params.folder,
+            req.userObj,
+            (err, folder) => {
+                sendResponse(req, res, err, folder)
             }
         )
     }
@@ -71,30 +87,24 @@ router.put(
     (req, res) => {
         bookmarkTweet(
             req.params.folder,
-            req.body.twtId,
-            async (err, tweet) => {
-                if (err) {
-                    res.status(500)
-                    return res.json(err)
-                }
-                if (tweet) {
-                    res.status(201)
-                    return res.json(
-                        {
-                            bookmarked: true,
-                            tweet: tweet,
-                            message: `Bookmarked tweet ${tweet._id}`
-                        }
-                    )
-                }
-                res.status(500)
-                return res.json(
-                    {
-                        bookmarked: false,
-                        tweet: false,
-                        message: 'Unknown server error'
-                    }
-                )
+            req.body.tweets,
+            req.userObj,
+            (err, tweet) => {
+                sendResponse(req, res, err, tweet)
+            }
+        )
+    }
+)
+
+router.patch(
+    '/folders/:folder',
+    (req, res) => {
+        unBookmarkTweet(
+            req.params.folder,
+            req.body.tweets,
+            req.userObj,
+            (err, response) => {
+                sendResponse(req, res, err, response)
             }
         )
     }
