@@ -17,6 +17,4 @@ const checkToken = async (req, res, next) => {
         })(req, res, next)
 }
 
-//async function generateToken()
-
 module.exports = checkToken

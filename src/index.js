@@ -3,10 +3,10 @@ require('./auth/auth')
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const helmet = require('helmet')
-const morgan = require('morgan');
+// const helmet = require('helmet')
+// const morgan = require('morgan');
 const { connectDb } = require('./db/mongoose');
-const { getTweet } = require('./twt-api/find')
+//const { getTweet } = require('./twt-api/find')
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const { JWT_SECRET } = process.env
