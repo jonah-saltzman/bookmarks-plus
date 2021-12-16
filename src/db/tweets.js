@@ -9,21 +9,26 @@ async function searchTweet(tweets) {
     return results.length > 0 ? results : false
 }
 
-async function addTweet(twtData) {
-    const dataObj = twtData.data[0]
-    const twtAuthor = twtData.includes.users.find(user => user.id === dataObj.author_id)
-    const twtObj = {
-			twtId: dataObj.id,
-			twtMetrics: dataObj.public_metrics,
-            twtDate: dataObj.created_at,
-            twtText: dataObj.text,
-            twtAuthor: twtAuthor,
-            twtMedia: twtData.includes.media ? twtData.includes.media.map(media => {
-                return {key: media.media_key, url: media.url || media.preview_image_url}
-            }) : []
-		}
-    const tweet = await Tweet.create(twtObj)
-    return tweet ? tweet : false
+async function addTweet(tweets) {
+    const docsArray = []
+    for (const tweet of tweets) {
+        const data = tweet.data
+        const media = tweet.includes.media
+        const author = tweet.includes.users
+        docsArray.push({
+            twtId: data.id,
+            twtMetrics: data.public_metrics,
+            twtDate: data.created_at,
+            twtText: data.text,
+            twtAuthor: author,
+            twtMedia: media ? media.map(media => ({ 
+                key: media.media_key,
+                url: media.url || media.preview_image_url
+            })) : []
+        })
+    }
+    const insertedTweets = await Tweet.insertMany(docsArray)
+    return insertedTweets
 }
 
 function parseTweetId(string) {

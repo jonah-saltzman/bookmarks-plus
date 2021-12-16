@@ -106,7 +106,8 @@ async function bookmarkTweet(folderId, tweets, userObj, done) {
 			{
 				status: 406,
 				error: {
-					deleted: false,
+					bookmarked: 0,
+					tweets: false,
 					message: 'User does not have folder',
 				},
 			},
@@ -115,23 +116,67 @@ async function bookmarkTweet(folderId, tweets, userObj, done) {
 	}
 	const dbTweets = await searchTweet(parsedIds)
 	const remainingTweets = parsedIds.filter(id => {
-		return !dbTweets.some(dbTweet => dbTweet.twtId === id)
+		return !(dbTweets.some(dbTweet => dbTweet.twtId === id))
 	})
-	console.log('parsed IDs:')
-	console.log(parsedIds)
-	console.log('---------------------------------------------------------------------')
-	console.log(`found ${dbTweets.length} in db:`)
-	console.log(dbTweets)
-	console.log('---------------------------------------------------------------------')
-	console.log('remaining tweets: ')
-	console.log(remainingTweets)
 
 	const foundTweets = await getTweet(remainingTweets)
-	console.log('---------------------------------------------------------------------')
-	console.log('--------------TWITTER API RESULTS------------------------------------')
-	console.log('---------------------------------------------------------------------')
+	console.log(`IDs submitted: ${tweets.length}`)
+	console.log(`Parsed: ${parsedIds.length}; Not parsed: ${badIds.length}`)
+	console.log(`Tweets in DB: ${dbTweets.length}`)
+	console.log(`Tweets retrieved from Twitter: ${foundTweets.found.length}`)
+	console.log(`Tweets not retreived from Twitter: ${foundTweets.notFound.length}`)
 	console.log(foundTweets)
-	return
+	const addedTweets = await addTweet(foundTweets.found)
+	console.log(addedTweets)
+	const goodTweets = addedTweets.data ? dbTweets.concat(addedTweets.data) : dbTweets
+	console.log('good tweets: ')
+	console.log(goodTweets)
+	console.log('after good tweets')
+	const badTweets = parsedIds.filter(id => {
+		return !(goodTweets.some(goodTweet => goodTweet.twtId === id))
+	})
+	console.log(`FINALLY: ${goodTweets.length} in DB, ${badTweets.length} not added`)
+	const folder = await Folder.findById(folderId).populate('tweets')
+	const alreadyBookmarked = []
+	const bookmarked = []
+	goodTweets.forEach(tweet => {
+		if (folder.tweets.some(folderTwt => folderTwt.twtId === tweet.twtId)) {
+			alreadyBookmarked.push(tweet)
+		} else {
+			folder.tweets.push(tweet._id)
+			bookmarked.push(tweet)
+		}
+	})
+	folder.save((err, folder, rows) => {
+		console.log(`rows: ${rows}`)
+		if (err) {
+			console.error(err)
+			return done({
+				status: 500,
+				error: {
+					bookmarked: 0,
+					tweets: false,
+					message: "Error adding tweets to folder"
+				}
+			})
+		}
+		if (folder) {
+			return done(null, {
+				status: bookmarked.length ? 201 : 409,
+				message: {
+					sent: tweets.length,
+					bookmarkedCount: bookmarked.length,
+					bookmarked: bookmarked.map((tweet) => tweet.twtId),
+					duplicateCount: alreadyBookmarked.length,
+					duplicates: alreadyBookmarked.map((tweet) => tweet.twtId),
+					apiErrCount: badTweets.length,
+					apiErrIds: badTweets,
+					badIdCount: badIds.length,
+					badIds: badIds
+				},
+			})
+		}
+	})
 
 // 	const dbTweet = await searchTweet(parsedTwtId)
 // 		const twtData = await getTweet(parsedTwtId)

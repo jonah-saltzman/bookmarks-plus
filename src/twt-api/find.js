@@ -18,6 +18,18 @@ async function getTweet(tweets) {
             })
         })
     const data = await response.json()
+    const notFound = data.errors
+			? data.errors.map((error) => {
+					const errObj = {
+						error: 'Not found',
+						id: error.value || error.resource_id,
+					}
+					return errObj
+			  })
+			: []
+    if (!data.data) {
+        return { found: [], notFound }
+    }
     console.log(data)
     const found = data.data.map(tweet => {
         const twtObj = {
@@ -35,15 +47,7 @@ async function getTweet(tweets) {
         }
         return twtObj
     })
-    const notFound = data.errors
-        ? data.errors.map(error => {
-            const errObj = {
-                error: "Not found",
-                id: error.value || error.resource_id
-            }
-            return errObj})
-        : []
-    return notFound ? found.concat(notFound) : found
+    return { found, notFound }
     } catch(e) {
         console.error(e)
         return false
