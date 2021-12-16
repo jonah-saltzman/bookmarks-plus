@@ -1,7 +1,12 @@
 const mongoose = require('mongoose')
+
+// MongoDB Atlas URI provided by Heroku (production)
+// or dotenv (development)
 const { MONGODB_URI } = process.env
 
 function connectDb() {
+
+	// If disconnected, connect to the database
 	if (mongoose.connection.readyState === 0) {
 		console.log('connecting mongoose')
 		mongoose.connect(MONGODB_URI, {

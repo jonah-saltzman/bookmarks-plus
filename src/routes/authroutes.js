@@ -5,12 +5,11 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const { JWT_SECRET } = process.env
 
+// Errors during registration handled within Passport strategy
 router.post(
 	'/signup',
 	passport.authenticate('signup', {session: false}),
 	async (req, res) => {
-		console.log('passed passport')
-		console.log(req.body)
 		res.json({
 			registered: true,
 			user: req.user,
@@ -18,6 +17,7 @@ router.post(
 	}
 )
 
+// Errors during signin handled in authentication IIFE
 router.post(
     '/login',
     async (req, res, next) => {
@@ -34,6 +34,9 @@ router.post(
                         res.status(401)
                         return res.json(info)
                     }
+                    // Upon validation of login credentials, req.login adds user
+                    // object to req object, then callback generates JWT and sends
+                    // token to client in response body
                     req.login(
                         user,
                         { session: false },
@@ -56,6 +59,5 @@ router.post(
         )(req, res, next)
     }
 )
-
 
 module.exports = router

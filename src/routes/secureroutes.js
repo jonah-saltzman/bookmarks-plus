@@ -2,23 +2,40 @@ const express = require('express')
 const router = express.Router()
 const { newFolder, bookmarkTweet } = require('../db/folders')
 
+// Custom middleware attaches user object to req object upon
+// successful token validation
+
+// Get array of folders belonging to authenticated user
 router.get(
     '/folders',
     async (req, res) => {
-        await req.userObj.populate('folders')
+        await req.userObj.populate({
+            path: 'folders',
+            populate: { path: 'tweets' }
+        })
         res.json({
             message: 'Got folders',
             user: req.userObj._id,
             folders: req.userObj.folders.map(folder => {
                 return {
                     folderName: folder.folderName,
-                    folderId: folder._id
+                    folderId: folder._id,
+                    tweets: folder.tweets.map(tweet => {
+                        return {
+                            twtId: tweet.twtId,
+                            media: tweet.twtMedia.map(media => media.url)
+                        }
+                    })
                 }
             })
         })
     }
 )
 
+// Create a new folder
+// 
+// newFolder() handles folder document creation
+// and adds its reference to user document
 router.post(
     '/folders',
     (req, res) => {
@@ -52,7 +69,6 @@ router.post(
 router.put(
     '/folders/:folder',
     (req, res) => {
-        console.log(req.body.twtId, req.params.folder)
         bookmarkTweet(
             req.params.folder,
             req.body.twtId,
