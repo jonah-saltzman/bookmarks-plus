@@ -18,29 +18,4 @@ const checkToken = async (req, res, next) => {
         })(req, res, next)
 }
 
-const validateToken = async (req, res) => {
-    jwt.verify(req.body.token, JWT_SECRET, (err, data) => {
-		if (err) {
-			res.status(500)
-			return res.json({ 
-				message: 'Token failed validation',
-				token: req.body.token
-			})
-		}
-		if (data) {
-			res.status(200)
-			return res.json({
-				message: 'Token successfully validated',
-				token: req.body.token,
-				user: data
-			})
-		}
-		res.status(500)
-		return res.json({ message: 'Unknown server error' })
-    })
-}
-
-module.exports = {
-    checkToken,
-    validateToken
-}
+module.exports = checkToken

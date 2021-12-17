@@ -31,7 +31,4 @@ function getDbStatus() {
 	return mongoose.connection.readyState
 }
 
-module.exports = {
-	connectDb,
-	getDbStatus,
-}
+module.exports = connectDb

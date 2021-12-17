@@ -4,8 +4,6 @@ const JWTstrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 const User = require('../db/models/user')
 
-const emailRE = new RegExp(/^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/,'i')
-
 const { JWT_SECRET } = process.env
 
 // Local registration
@@ -43,20 +41,30 @@ passport.use(
     {
         usernameField: 'email',
         passwordField: 'password',
-        passReqToCallback: true
     },
-    async (req, email, password, done) => {
-        //console.log(req)
+    async (email, password, done) => {
         try {
             const user = await User.findOne({ email })
             if (!user) {
-                return done(null, false, {message: 'User not found'})
+                return done(
+                    null,
+                    false,
+                    { status: 404, message: 'User not found'}
+                )
             }
             const validPassword = await user.isValidPassword(password)
             if (!validPassword) {
-                return done(null, false, {message: 'Invalid password'})
+                return done(
+                    null,
+                    false,
+                    { status: 401, message: 'Invalid password'}
+                )
             }
-            return done(null, user, {message: 'Logged in!'})
+            return done(
+                null,
+                user,
+                {status: 200, message: 'Logged in!'}
+            )
         } catch(error) {
             return done(error)
         }

@@ -5,13 +5,12 @@ require('./auth/auth')
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const { connectDb } = require('./db/mongoose');
+const connectDb = require('./db/mongoose');
 const passport = require('passport')
-const jwt = require('jsonwebtoken')
 
-// Custom token middleware
-const { JWT_SECRET } = process.env
-const { checkToken, validateToken} = require('./auth/token')
+// Custom middleware
+const checkToken = require('./auth/token')
+const sendResponse = require('./sendresponse')
 
 // Express routers
 const authRouter = require('./routes/authroutes')
@@ -33,13 +32,6 @@ app.use(passport.initialize())
 // Authentication routes don't require token validation
 app.use('/auth', authRouter)
 
-// Routes for testing API & token validation
-app.get('/token', (req, res) => validateToken(req, res))
-app.get('/', (req, res) => {
-	res.status(204)
-	res.json({ message: 'Redirect to client' })
-})
-
 // User routes require token validation
 app.use(checkToken)
 
@@ -47,9 +39,16 @@ app.use(checkToken)
 app.use('/user', secureRouter)
 
 // Final error catch
-app.use(function (err, req, res, next) {
-	res.status(err.status || 500)
-	res.json({ error: err, message: "Internal server error" })
+app.use((err, req, res, next) => {
+	sendResponse(
+		req,
+		res,
+		{
+			status: err.status,
+			error: { error: err, message: "Internal server error"}
+		},
+		null
+	)
 })
 
 app.listen(PORT, async () => {
