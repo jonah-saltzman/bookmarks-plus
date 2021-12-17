@@ -1,14 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { sendResponse } = require('../middleware')
-const {
-    newFolder,
-    bookmarkTweet,
-    getFolder,
-    deleteFolder,
-    unBookmarkTweet,
-    getAllFolders
-} = require('../db/folders')
+const folders = require('../db/folders')
 
 const { invalidateToken } = require('../auth/token')
 
@@ -19,7 +12,7 @@ const { invalidateToken } = require('../auth/token')
 router.get(
     '/folders',
     async (req, res) => {
-        getAllFolders(
+        folders.getAllFolders(
             req.userObj,
             (err, folders) => {
                 sendResponse(req, res, err, folders)
@@ -35,7 +28,7 @@ router.get(
 router.post(
     '/folders',
     (req, res) => {
-        newFolder(
+        folders.newFolder(
             req.body.folderName, 
             req.userObj, 
             (err, folder) => {
@@ -48,7 +41,7 @@ router.post(
 router.get(
     '/folders/:folder',
     (req, res) => {
-        getFolder(
+        folders.getOneFolder(
             req.params.folder,
             req.userObj,
             (err, folder) => {
@@ -61,7 +54,7 @@ router.get(
 router.delete(
     '/folders/:folder',
     (req, res) => {
-        deleteFolder(
+        folders.deleteFolder(
             req.params.folder,
             req.userObj,
             (err, folder) => {
@@ -74,7 +67,7 @@ router.delete(
 router.put(
     '/folders/:folder',
     (req, res) => {
-        bookmarkTweet(
+        folders.bookmarkTweet(
             req.params.folder,
             req.body.tweets,
             req.userObj,
@@ -88,7 +81,7 @@ router.put(
 router.patch(
     '/folders/:folder',
     (req, res) => {
-        unBookmarkTweet(
+        folders.unBookmarkTweet(
             req.params.folder,
             req.body.tweets,
             req.userObj,

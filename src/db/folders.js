@@ -98,9 +98,6 @@ async function unBookmarkTweet(folderId, tweets, userObj, done) {
 	const pull = inFolder
 		.map(twtId => folder.tweets.find(tweet => tweet.twtId === twtId))
 		.map(tweet => tweet._id)
-	console.log('pulling _ids: ')
-	console.log(pull)
-	console.log('from folder: ', folder._id)
 	await Folder.findByIdAndUpdate(
 		folder._id,
 		{
@@ -108,17 +105,12 @@ async function unBookmarkTweet(folderId, tweets, userObj, done) {
 		}
 	)
 	const newFolder = await Folder.findById(folder._id)
-	console.log('new folder: ')
-	console.log(newFolder)
-	//console.log(`newFolder.tweets.length = ${newFolder.tweets.length}`)
 	const [deleted, notDeleted] = [ [], [] ]
 	inFolder.forEach(twtId => {
 		newFolder.tweets.some(tweet => tweet.twtId === twtId)
 			? notDeleted.push(twtId)
 			: deleted.push(twtId)
 	})
-	console.log(`deleted: ${deleted}`)
-	console.log(`not deleted: ${notDeleted}`)
 	if (deleted.length === 0) {
 		return done({
 			status: 500,
@@ -230,7 +222,7 @@ async function bookmarkTweet(folderId, tweets, userObj, done) {
 	})
 }
 
-async function getFolder(folderId, userObj, done) {
+async function getOneFolder(folderId, userObj, done) {
 	await userObj.populate('folders')
 	const userFolders = userObj.folders.map((folder) => folder.id)
 	if (!userFolders.includes(folderId)) {
@@ -339,7 +331,7 @@ async function deleteFolder(folderId, userObj, done) {
 module.exports = {
 	newFolder,
 	bookmarkTweet,
-	getFolder,
+	getOneFolder,
 	deleteFolder,
 	unBookmarkTweet,
 	getAllFolders
