@@ -7,8 +7,11 @@ const TWEET_SUFFIX =
 	'&tweet.fields=attachments,author_id,created_at,public_metrics,source&expansions=author_id,attachments.media_keys&media.fields=preview_image_url,url'
 
 async function getTweet(tweets) {
-    const URL = TWEET_PREFIX + tweets.join(',') + TWEET_SUFFIX
-    console.log('api url:')
+    console.log('getting tweets from api: ')
+    console.log(tweets)
+    const tweetString = tweets.length > 1 ? tweets.join(',') : tweets[0]
+    const URL = TWEET_PREFIX + tweetString + TWEET_SUFFIX
+    console.log('api url: ')
     console.log(URL)
     try {
         const response = await fetch(URL, {
@@ -18,6 +21,8 @@ async function getTweet(tweets) {
             })
         })
     const data = await response.json()
+    console.log('api data: ')
+    console.log(data)
     const notFound = data.errors
 			? data.errors.map((error) => {
 					const errObj = {
@@ -30,7 +35,6 @@ async function getTweet(tweets) {
     if (!data.data) {
         return { found: [], notFound }
     }
-    console.log(data)
     const found = data.data.map(tweet => {
         const twtObj = {
             data: tweet,
