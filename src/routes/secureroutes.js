@@ -102,7 +102,6 @@ router.patch(
 router.get(
     '/signout',
     (req, res) => {
-        console.log('BEFORE INVALIDATING TOKEN')
         invalidateToken(
             req.userObj,
             (err, response, redirect) => {

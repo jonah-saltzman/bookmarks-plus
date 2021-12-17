@@ -63,22 +63,17 @@ UserSchema.methods.isValidPassword = async function(password) {
 }
 
 UserSchema.methods.newToken = async function() {
-    console.log('before adding token: ')
-    console.log(this.tokenId)
     const newId = uuidv4()
     if (this.tokenId) {
         this.invalidTokenIds.push(this.tokenId)
     }
     this.tokenId = newId
     await this.save()
-    console.log('after adding token: ')
-    console.log(this.tokenId)
     return this.tokenId
 }
 
 UserSchema.methods.invalidateToken = async function() {
     if (!this.tokenId) {
-        console.log('no current token')
         return false
     }
     this.invalidTokenIds.unshift(this.tokenId)

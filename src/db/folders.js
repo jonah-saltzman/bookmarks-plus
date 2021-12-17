@@ -40,38 +40,109 @@ async function newFolder(folderName, userId, done) {
 
 async function unBookmarkTweet(folderId, tweets, userObj, done) {
 	const [parsedIds, badIds] = parseTweetId(tweets)
-	console.log(`parsed ids:`)
-	console.log(parsedIds)
-	console.log('bad ids:')
-	console.log(badIds)
-	return done(null, null)
-	// await userObj.populate('folders')
-	// const userFolders = userObj.folders.map((folder) => folder.id)
-	// if (!userFolders.includes(folderId)) {
-	// 	return done(
-	// 		{
-	// 			status: 406,
-	// 			error: {
-	// 				deleted: false,
-	// 				message: 'User does not have folder',
-	// 			},
-	// 		},
-	// 		false
-	// 	)
-	// }
-	// const searchResults = await searchTweet(tweets)
-	// const parsedIds = []
-	// const badIds = []
-	// tweets.forEach((tweet) => {
-	// 	const parsed = parseTweetId(tweet)
-	// 	if (parsed) {
-	// 		if (!parsedIds.includes(parsed)) {
-	// 			parsedIds.push(parsed)
-	// 		}
-	// 	} else {
-	// 		badIds.push(tweet)
-	// 	}
-	// })
+	if (parsedIds.length < 1) {
+		return done({
+			status: 422,
+			error: {
+				removed: 0,
+				tweets: false,
+				message: 'All tweets invalid',
+			},
+		})
+	}
+	await userObj.populate('folders')
+	const userFolders = userObj.folders.map((folder) => folder.id)
+	if (!userFolders.includes(folderId)) {
+		return done(
+			{
+				status: 404,
+				error: {
+					removed: 0,
+					tweets: false,
+					message: 'User does not have folder',
+				},
+			},
+			false
+		)
+	}
+	const folder = await Folder.findById(folderId).populate('tweets')
+	if (folder.tweets.length === 0) {
+		return done(
+			{
+				status: 406,
+				error: {
+					removed: 0,
+					tweets: false,
+					message: 'Selected folder is already empty',
+				},
+			},
+			false
+		)
+	}
+	const [ inFolder, notInFolder ] = [ [], [], ]
+	parsedIds.forEach(id => {
+		folder.tweets.some((tweet) => tweet.twtId === id)
+			? inFolder.push(id)
+			: notInFolder.push(id)
+	})
+	if (inFolder.length < 1) {
+		return done({
+			status: 404,
+			error: {
+				removed: 0,
+				tweets: false,
+				message: 'No selected tweets in selected folder',
+			},
+		})
+	}
+	const pull = inFolder
+		.map(twtId => folder.tweets.find(tweet => tweet.twtId === twtId))
+		.map(tweet => tweet._id)
+	console.log('pulling _ids: ')
+	console.log(pull)
+	console.log('from folder: ', folder._id)
+	await Folder.findByIdAndUpdate(
+		folder._id,
+		{
+			$pull: { tweets: { $in: pull}},
+		}
+	)
+	const newFolder = await Folder.findById(folder._id)
+	console.log('new folder: ')
+	console.log(newFolder)
+	//console.log(`newFolder.tweets.length = ${newFolder.tweets.length}`)
+	const [deleted, notDeleted] = [ [], [] ]
+	inFolder.forEach(twtId => {
+		newFolder.tweets.some(tweet => tweet.twtId === twtId)
+			? notDeleted.push(twtId)
+			: deleted.push(twtId)
+	})
+	console.log(`deleted: ${deleted}`)
+	console.log(`not deleted: ${notDeleted}`)
+	if (deleted.length === 0) {
+		return done({
+			status: 500,
+			error: {
+				removed: 0,
+				tweets: false,
+				message: "Server failed to delete tweets"
+			}
+		})
+	}
+	return done(false, {
+		status: 200,
+		message: {
+			sent: tweets.length,
+			deletedCount: deleted.length,
+			deleted: deleted,
+			notFoundCount: notInFolder.length,
+			notFound: notInFolder,
+			failedCount: notDeleted.length,
+			failed: notDeleted,
+			badIdsCount: badIds.length,
+			badIds: badIds
+		}
+	})
 }
 
 async function bookmarkTweet(folderId, tweets, userObj, done) {

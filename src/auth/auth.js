@@ -52,7 +52,6 @@ passport.use(
                     { status: 404, message: 'User not found'}
                 )
             }
-            console.log(`checking password for user: ${email}`)
             const validPassword = await user.isValidPassword(password)
             if (!validPassword) {
                 return done(
@@ -79,9 +78,6 @@ passport.use(
             jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('JWT')
         },
         (token, done) => {
-            console.log('IN TOKEN STRATEGY')
-            console.log(token)
-            console.log(`tokenID: ${token.user.tokenId}`)
             if (!token) {
                 return done(
                             {
@@ -103,13 +99,9 @@ passport.use(
                 }
                 if (user) {
                     const dbTokenId = user.tokenId
-                    console.log(`token matches user: ${user.email}`)
-                    console.log(`user's current tokenId: ${user.tokenId}`)
                     if (dbTokenId === internalTokenId) {
-                        console.log('TokenId matches ID in db')
                         return done(null, user)
                     } else if (user.invalidTokenIds.some(id => id === internalTokenId)) {
-                        console.log('found expired/invalid ID')
                         return done(
                             {
                                 status: 403,
@@ -118,7 +110,7 @@ passport.use(
                         )
                     }
                 } else {
-                    console.log('unknown error')
+                    console.error(new Error('unknown error'))
                     return done(null, false)
                 }
             })
