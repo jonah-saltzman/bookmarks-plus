@@ -1,8 +1,8 @@
 const passport = require('passport')
-const sendResponse = require('../sendresponse')
+const { sendResponse } = require('../middleware')
 const addToken = require('./addToken')
 
-function myAuth(req, res) {
+function handleLogin(req, res) {
 	passport.authenticate(
         'login',
         { session: false },
@@ -29,4 +29,4 @@ function myAuth(req, res) {
     )(req, res)
 }
 
-module.exports = myAuth
+module.exports = handleLogin

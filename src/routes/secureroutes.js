@@ -1,13 +1,16 @@
 const express = require('express')
 const router = express.Router()
-const sendResponse = require('../sendresponse')
+const { sendResponse } = require('../middleware')
 const {
     newFolder,
     bookmarkTweet,
     getFolder,
     deleteFolder,
-    unBookmarkTweet
+    unBookmarkTweet,
+    getAllFolders
 } = require('../db/folders')
+
+const { invalidateToken } = require('../auth/token')
 
 // Custom middleware attaches user object to req object upon
 // successful token validation
@@ -16,26 +19,12 @@ const {
 router.get(
     '/folders',
     async (req, res) => {
-        await req.userObj.populate({
-            path: 'folders',
-            populate: { path: 'tweets' }
-        })
-        res.json({
-            message: 'Got folders',
-            user: req.userObj._id,
-            folders: req.userObj.folders.map(folder => {
-                return {
-                    folderName: folder.folderName,
-                    folderId: folder._id,
-                    tweets: folder.tweets.map(tweet => {
-                        return {
-                            twtId: tweet.twtId,
-                            media: tweet.twtMedia.map(media => media.url)
-                        }
-                    })
-                }
-            })
-        })
+        getAllFolders(
+            req.userObj,
+            (err, folders) => {
+                sendResponse(req, res, err, folders)
+            }
+        )
     }
 )
 
@@ -105,6 +94,19 @@ router.patch(
             req.userObj,
             (err, response) => {
                 sendResponse(req, res, err, response)
+            }
+        )
+    }
+)
+
+router.get(
+    '/signout',
+    (req, res) => {
+        console.log('BEFORE INVALIDATING TOKEN')
+        invalidateToken(
+            req.userObj,
+            (err, response, redirect) => {
+                sendResponse(req, res, err, response, redirect)
             }
         )
     }

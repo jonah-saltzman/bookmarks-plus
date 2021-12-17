@@ -11,8 +11,6 @@ async function searchTweet(tweets) {
 }
 
 async function addTweet(tweets) {
-    console.log('inserting tweets: ')
-    console.log(tweets)
     const docsArray = []
     for (const tweet of tweets) {
         const data = tweet.data
@@ -31,22 +29,32 @@ async function addTweet(tweets) {
         })
     }
     const insertedTweets = await Tweet.insertMany(docsArray)
-    console.log('inserted tweets: ')
-    console.log(insertedTweets)
     return insertedTweets
 }
 
-function parseTweetId(string) {
-	if (urlTwtIdRE.test(string)) {
-		return string.match(urlTwtIdRE)[1]
-	}
-    if (altIdRE.test(string)) {
-        return string.match(altIdRE)[1]
+function parseTweetId(tweets) {
+    const parsedIds = []
+    const badIds = []
+    for (const string of tweets) {
+        let id = null
+        if (urlTwtIdRE.test(string)) {
+		    id = string.match(urlTwtIdRE)[1]
+        }
+        if (altIdRE.test(string)) {
+            id = string.match(altIdRE)[1]
+        }
+        if (twtIdRE.test(string)) {
+            id = string.match(twtIdRE)[0]
+        }
+        if (id) {
+            if (!parsedIds.includes(id)) {
+                parsedIds.push(id)
+            }
+        } else {
+            badIds.push(string)
+        }
     }
-	if (twtIdRE.test(string)) {
-		return string.match(twtIdRE)[0]
-	}
-	return false
+    return [parsedIds, badIds]
 }
 
 module.exports = {

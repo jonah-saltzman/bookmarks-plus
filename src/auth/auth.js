@@ -52,6 +52,7 @@ passport.use(
                     { status: 404, message: 'User not found'}
                 )
             }
+            console.log(`checking password for user: ${email}`)
             const validPassword = await user.isValidPassword(password)
             if (!validPassword) {
                 return done(
@@ -78,20 +79,48 @@ passport.use(
             jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('JWT')
         },
         (token, done) => {
+            console.log('IN TOKEN STRATEGY')
+            console.log(token)
+            console.log(`tokenID: ${token.user.tokenId}`)
             if (!token) {
-                return done('bad token', false, {message: "token extraction failed"})
+                return done(
+                            {
+                                status: 401,
+                                error: { message: 'Invalid login session' }
+                            }
+                        )
             }
+            const internalTokenId = token.user.tokenId
             User.findOne({_id: token.user._id}, (err, user) => {
                 if (err) {
                     console.error(err)
-                    return done(err, false)
+                    return done(
+                                {
+                                    status: 500,
+                                    error: { message: 'User database encountered an error' },
+                                }
+                            )
                 }
                 if (user) {
-                    // console.log(user)
-                    return done(null, user)
+                    const dbTokenId = user.tokenId
+                    console.log(`token matches user: ${user.email}`)
+                    console.log(`user's current tokenId: ${user.tokenId}`)
+                    if (dbTokenId === internalTokenId) {
+                        console.log('TokenId matches ID in db')
+                        return done(null, user)
+                    } else if (user.invalidTokenIds.some(id => id === internalTokenId)) {
+                        console.log('found expired/invalid ID')
+                        return done(
+                            {
+                                status: 403,
+                                error: { message: "Login session no longer valid" }
+                            }
+                        )
+                    }
+                } else {
+                    console.log('unknown error')
+                    return done(null, false)
                 }
-                console.log('unknown error')
-                return done(null, false)
             })
         }
     )

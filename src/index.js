@@ -9,8 +9,8 @@ const connectDb = require('./db/mongoose');
 const passport = require('passport')
 
 // Custom middleware
-const checkToken = require('./auth/token')
-const sendResponse = require('./sendresponse')
+const { checkToken } = require('./auth/token')
+const { sendResponse, logRequest } = require('./middleware')
 
 // Express routers
 const authRouter = require('./routes/authroutes')
@@ -29,6 +29,9 @@ app.use(bodyParser.json())
 app.use(cors())
 app.use(passport.initialize())
 
+//app.use(logRequest)
+app.get('/', (req, res) => res.json({message: "Welcome!"}))
+
 // Authentication routes don't require token validation
 app.use('/auth', authRouter)
 
@@ -44,8 +47,8 @@ app.use((err, req, res, next) => {
 		req,
 		res,
 		{
-			status: err.status,
-			error: { error: err, message: "Internal server error"}
+			status: err.status || 500,
+			error: { error: err, message: 'Internal server error' },
 		},
 		null
 	)

@@ -5,7 +5,8 @@ const { addTweet, searchTweet, parseTweetId } = require('./tweets')
 
 async function newFolder(folderName, userId, done) {
 	const user = await User.findById(userId).populate('folders')
-	if (user.folders.some((folder) => folder.folderName === folderName)) {
+	const folderNameRE = new RegExp(folderName, 'i')
+	if (user.folders.some((folder) => folderNameRE.test(folder.folderName))) {
 		return done(
 			{
 				status: 409,
@@ -38,59 +39,44 @@ async function newFolder(folderName, userId, done) {
 }
 
 async function unBookmarkTweet(folderId, tweets, userObj, done) {
-	await userObj.populate('folders')
-	const userFolders = userObj.folders.map((folder) => folder.id)
-	if (!userFolders.includes(folderId)) {
-		return done(
-			{
-				status: 406,
-				error: {
-					deleted: false,
-					message: 'User does not have folder',
-				},
-			},
-			false
-		)
-	}
-	const searchResults = await searchTweet(tweets)
-	return
-	if (tweets[1]) {
-		return done(
-			{
-				status: 404,
-				error: {
-					removed: false,
-					tweet: false,
-					message: "Tweet not in database"
-				}
-			}
-		)
-	}
-	console.log(userObj.folders)
-	return
-	const folder = await Folder.findByIdAndUpdate(
-		folderId,
-		{
-
-		}
-	)
+	const [parsedIds, badIds] = parseTweetId(tweets)
+	console.log(`parsed ids:`)
+	console.log(parsedIds)
+	console.log('bad ids:')
+	console.log(badIds)
+	return done(null, null)
+	// await userObj.populate('folders')
+	// const userFolders = userObj.folders.map((folder) => folder.id)
+	// if (!userFolders.includes(folderId)) {
+	// 	return done(
+	// 		{
+	// 			status: 406,
+	// 			error: {
+	// 				deleted: false,
+	// 				message: 'User does not have folder',
+	// 			},
+	// 		},
+	// 		false
+	// 	)
+	// }
+	// const searchResults = await searchTweet(tweets)
+	// const parsedIds = []
+	// const badIds = []
+	// tweets.forEach((tweet) => {
+	// 	const parsed = parseTweetId(tweet)
+	// 	if (parsed) {
+	// 		if (!parsedIds.includes(parsed)) {
+	// 			parsedIds.push(parsed)
+	// 		}
+	// 	} else {
+	// 		badIds.push(tweet)
+	// 	}
+	// })
 }
 
 async function bookmarkTweet(folderId, tweets, userObj, done) {
-	const parsedIds = []
-	const badIds = []
-	tweets.forEach(tweet => {
-		const parsed = parseTweetId(tweet)
-		if (parsed) {
-			if (!parsedIds.includes(parsed)) {
-				parsedIds.push(parsed)
-			}
-		} else {
-			badIds.push(tweet)
-		}
-	})
+	const [parsedIds, badIds] = parseTweetId(tweets)
 	if (parsedIds.length < 1) {
-		console.log('hit done')
 		return done(
 			{
 				status: 422,
@@ -107,7 +93,7 @@ async function bookmarkTweet(folderId, tweets, userObj, done) {
 	if (!userFolders.includes(folderId)) {
 		return done(
 			{
-				status: 406,
+				status: 404,
 				error: {
 					bookmarked: 0,
 					tweets: false,
@@ -175,7 +161,7 @@ async function bookmarkTweet(folderId, tweets, userObj, done) {
 
 async function getFolder(folderId, userObj, done) {
 	await userObj.populate('folders')
-	const userFolders = userObj.folders.map(folder => folder.id)
+	const userFolders = userObj.folders.map((folder) => folder.id)
 	if (!userFolders.includes(folderId)) {
 		return done(
 			{
@@ -197,6 +183,36 @@ async function getFolder(folderId, userObj, done) {
 		message: folder
 	}
 	return done(null, response)
+}
+
+async function getAllFolders(userObj, done) {
+	await userObj.populate({
+		path: 'folders',
+		populate: { path: 'tweets' },
+	})
+	const folders = userObj.folders.map((folder) => {
+		return {
+			folderName: folder.folderName,
+			folderId: folder._id,
+			tweets: folder.tweets.map((tweet) => {
+				return {
+					twtId: tweet.twtId,
+					media: tweet.twtMedia.map((media) => media.url),
+				}
+			}),
+		}
+	})
+	return done(
+		null,
+		{
+			status: 200,
+			message: {
+				gotFolders: true,
+				message: 'Got folders',
+				folders: folders
+			},
+		}
+	)
 }
 
 async function deleteFolder(folderId, userObj, done) {
@@ -254,5 +270,6 @@ module.exports = {
 	bookmarkTweet,
 	getFolder,
 	deleteFolder,
-	unBookmarkTweet
+	unBookmarkTweet,
+	getAllFolders
 }
