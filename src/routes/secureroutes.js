@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { sendResponse } = require('../middleware')
+const sendResponse = require('../responder')
 const folders = require('../db/folders')
 
 const { invalidateToken } = require('../auth/token')

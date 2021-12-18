@@ -86,7 +86,6 @@ passport.use(
                             }
                         )
             }
-            const internalTokenId = token.user.tokenId
             User.findOne({_id: token.user._id}, (err, user) => {
                 if (err) {
                     console.error(err)
@@ -98,6 +97,7 @@ passport.use(
                             )
                 }
                 if (user) {
+                    const internalTokenId = token.user.tokenId
                     const dbTokenId = user.tokenId
                     if (dbTokenId === internalTokenId) {
                         return done(null, user)
@@ -106,6 +106,13 @@ passport.use(
                             {
                                 status: 403,
                                 error: { message: "Login session no longer valid" }
+                            }
+                        )
+                    } else {
+                        return done(
+                            {
+                                status: 406,
+                                error: { message: "Invalid token" }
                             }
                         )
                     }

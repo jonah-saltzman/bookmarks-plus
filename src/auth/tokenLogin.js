@@ -1,5 +1,5 @@
 const passport = require('passport')
-const { sendResponse } = require('../middleware')
+const { sendResponse } = require('../responder')
 const addToken = require('./addToken')
 
 function handleLogin(req, res) {
@@ -7,6 +7,15 @@ function handleLogin(req, res) {
         'login',
         { session: false },
         (err, user, info) => {
+            if (err) {
+                return sendResponse(req, res, {
+                    status: 500,
+                    error: {
+                        loggedIn: false,
+                        message: "Database error"
+                    }
+                })
+            }
             if (!user) {
                 return sendResponse(req, res, {
                     status: info.status,
@@ -20,7 +29,9 @@ function handleLogin(req, res) {
                 if (err) {
                     return sendResponse(req, res, {
                         status: 500,
-                        error: {error: "Error logging in"}
+                        error: {
+                            loggedIn: false,
+                            message: "Error logging in"}
                     })
                 }
                 addToken(req, res, null, user)

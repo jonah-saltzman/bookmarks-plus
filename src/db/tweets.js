@@ -38,17 +38,11 @@ function parseTweetId(tweets) {
     for (const string of tweets) {
         let id = null
         if (urlTwtIdRE.test(string)) {
-            console.log(`id ${string} matched RE urlTwtIdRE (#1)`)
 		    id = string.match(urlTwtIdRE)[1]
-            console.log(`match: ${id}`)
         } else if (altIdRE.test(string)) {
-            console.log(`id ${string} matched RE altIdRE (#2)`)
             id = string.match(altIdRE)[1]
-            console.log(`match: ${id}`)
         } else if (twtIdRE.test(string)) {
-            console.log(`id ${string} matched RE twtIdRE (#3)`)
             id = string.match(twtIdRE)[0]
-            console.log(`match: ${id}`)
         }
         if (id) {
             if (!parsedIds.includes(id)) {

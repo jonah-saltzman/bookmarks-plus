@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const addToken = require('../auth/addToken')
 const handleLogin = require('../auth/tokenLogin')
 
 // Errors during registration handled within Passport strategy

@@ -10,7 +10,7 @@ const passport = require('passport')
 
 // Custom middleware
 const { checkToken } = require('./auth/token')
-const { sendResponse, logRequest } = require('./middleware')
+const sendResponse = require('./responder')
 
 // Express routers
 const authRouter = require('./routes/authroutes')

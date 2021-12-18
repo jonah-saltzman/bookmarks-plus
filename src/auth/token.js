@@ -1,5 +1,5 @@
 const passport = require('passport')
-const { sendResponse } = require('../middleware')
+const sendResponse = require('../responder')
 
 const checkToken = async (req, res, next) => {
     passport.authenticate('jwt', { session: false }, async (err, user) => {
