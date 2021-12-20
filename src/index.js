@@ -17,7 +17,7 @@ const authRouter = require('./routes/authroutes')
 const secureRouter = require('./routes/secureroutes')
 
 // Port supplied by Heroku or set to 3000
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3001
 
 const app = express()
 
@@ -42,17 +42,7 @@ app.use(checkToken)
 app.use('/user', secureRouter)
 
 // Final error catch
-app.use((err, req, res, next) => {
-	sendResponse(
-		req,
-		res,
-		{
-			status: err.status || 500,
-			error: { error: err, message: 'Internal server error' },
-		},
-		null
-	)
-})
+app.use(sendResponse)
 
 app.listen(PORT, async () => {
 	console.log(`listening on port ${PORT}`)

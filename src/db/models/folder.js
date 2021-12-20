@@ -20,7 +20,7 @@ const FolderSchema = new Schema({
 })
 
 FolderSchema.methods.getFolderTweets = async function() {
-    return this.populate('tweets').tweets.map(tweet => {
+    return await this.populate('tweets').tweets.map(tweet => {
         return {
 					twtId: tweet.twtId,
                     media: tweet.twtMedia.map(media => media.url)

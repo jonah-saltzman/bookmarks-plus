@@ -1,10 +1,11 @@
 const passport = require('passport')
 const localStrategy = require('passport-local').Strategy
 const JWTstrategy = require('passport-jwt').Strategy
+const TwitterStrategy = require('passport-twitter').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 const User = require('../db/models/user')
 
-const { JWT_SECRET } = process.env
+const { JWT_SECRET, TWT_CLIENT_ID, TWT_CLIENT_SECRET, TWT_CB_URL } = process.env
 
 // Local registration
 passport.use(
@@ -97,8 +98,11 @@ passport.use(
                             )
                 }
                 if (user) {
+                    console.log('in JWT strategy')
                     const internalTokenId = token.user.tokenId
                     const dbTokenId = user.tokenId
+                    console.log(internalTokenId, dbTokenId)
+                    console.log(user)
                     if (dbTokenId === internalTokenId) {
                         return done(null, user)
                     } else if (user.invalidTokenIds.some(id => id === internalTokenId)) {
@@ -123,4 +127,24 @@ passport.use(
             })
         }
     )
+)
+
+passport.use(
+	new TwitterStrategy(
+		{
+			consumerKey: TWT_CLIENT_ID,
+			consumerSecret: TWT_CLIENT_SECRET,
+			callbackURL: TWT_CB_URL,
+		},
+		function (token, tokenSecret, profile, done) {
+            console.log('in TWT strategy')
+            console.log('twt profile: ')
+            console.log(profile)
+			User.find({ twtId: profile.id }, function (err, user) {
+                console.log('found user: ')
+                console.log(user)
+				return done(err, user, token, tokenSecret)
+			})
+		}
+	)
 )

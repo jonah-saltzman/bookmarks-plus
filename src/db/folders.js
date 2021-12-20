@@ -19,23 +19,27 @@ async function newFolder(folderName, userId, done) {
 			false
 		)
 	}
-	const folder = await Folder.create({
-		user: userId,
-		folderName: folderName,
-	})
-	await User.findByIdAndUpdate(folder.user, {
-		$push: { folders: folder._id },
-	})
-	const response = {
-		status: 201,
-		message: {
-			created: true,
-			folder: folder.folderName,
-			folderId: folder._id,
-			message: `Successfully created folder ${folder.folderName}`,
-		},
+	try {
+		const folder = await Folder.create({
+			user: userId,
+			folderName: folderName,
+		})
+		await User.findByIdAndUpdate(folder.user, {
+			$push: { folders: folder._id },
+		})
+		const response = {
+			status: 201,
+			message: {
+				created: true,
+				folder: folder.folderName,
+				folderId: folder._id,
+				message: `Successfully created folder ${folder.folderName}`,
+			},
+		}
+		return done(null, response)
+	} catch (err) {
+		return done(err, null)
 	}
-	return done(null, response)
 }
 
 async function unBookmarkTweet(folderId, tweets, userObj, done) {
@@ -85,7 +89,7 @@ async function unBookmarkTweet(folderId, tweets, userObj, done) {
 			? inFolder.push(id)
 			: notInFolder.push(id)
 	})
-	if (inFolder.length < 1) {
+	if (inFolder.length === 0) {
 		return done({
 			status: 404,
 			error: {
@@ -104,10 +108,10 @@ async function unBookmarkTweet(folderId, tweets, userObj, done) {
 			$pull: { tweets: { $in: pull}},
 		}
 	)
-	const newFolder = await Folder.findById(folder._id)
+	const patchedFolder = await Folder.findById(folder._id)
 	const [deleted, notDeleted] = [ [], [] ]
 	inFolder.forEach(twtId => {
-		newFolder.tweets.some(tweet => tweet.twtId === twtId)
+		patchedFolder.tweets.some(tweet => tweet.twtId === twtId)
 			? notDeleted.push(twtId)
 			: deleted.push(twtId)
 	})
@@ -139,7 +143,7 @@ async function unBookmarkTweet(folderId, tweets, userObj, done) {
 
 async function bookmarkTweet(folderId, tweets, userObj, done) {
 	const [parsedIds, badIds] = parseTweetId(tweets)
-	if (parsedIds.length < 1) {
+	if (parsedIds.length === 0) {
 		return done(
 			{
 				status: 422,
@@ -168,18 +172,16 @@ async function bookmarkTweet(folderId, tweets, userObj, done) {
 	}
 	const dbTweets = parsedIds.length > 0 ? await searchTweet(parsedIds) : []
 	const remainingTweets = dbTweets 
-		? parsedIds.filter(id => {
-			return !(dbTweets.some(dbTweet => dbTweet.twtId === id))
-			}) 
+		? parsedIds.filter(twtId => !(dbTweets.some(dbTweet => dbTweet.twtId === twtId)))
 		: parsedIds
 	const foundTweets = remainingTweets.length > 0 ? await getTweet(remainingTweets) : []
 	const addedTweets = foundTweets.found ? await addTweet(foundTweets.found) : []
-	const goodTweets = addedTweets.length > 0 ?
-		dbTweets.concat(addedTweets)
+	const goodTweets = addedTweets.length > 0 
+		? dbTweets.concat(addedTweets)
 		: dbTweets || []
-	const badTweets = parsedIds.filter(id => {
-		return !(goodTweets.some(goodTweet => goodTweet.twtId === id))
-	})
+	const badTweets = parsedIds.filter(twtId => (
+		!(goodTweets.some(goodTweet => goodTweet.twtId === twtId))
+	))
 	const folder = await Folder.findById(folderId).populate('tweets')
 	const alreadyBookmarked = []
 	const bookmarked = []

@@ -13,7 +13,7 @@ async function sendResponse(req, res, err, response, redirect) {
         return res.json(response.message)
     }
     res.status(500)
-    return res.json({message: "Unknown server error", user: req.userObj.email})
+    return res.json({message: err.err || "Unknown server error", user: req.userObj.email || null})
 }
 
 module.exports = sendResponse

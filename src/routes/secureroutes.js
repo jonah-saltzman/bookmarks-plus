@@ -4,6 +4,9 @@ const sendResponse = require('../responder')
 const folders = require('../db/folders')
 
 const { invalidateToken } = require('../auth/token')
+const twtAuth = require('../auth/twitter')
+const passport = require('passport')
+const twtRouter = require('./twtroutes')
 
 // Custom middleware attaches user object to req object upon
 // successful token validation
@@ -103,5 +106,26 @@ router.get(
         )
     }
 )
+
+router.get(
+    '/twtlogin',
+    (req, res, next) => {
+        twtAuth(req, res, next)
+    },
+    (req, res) => {
+        if (req.userObj.twtToken) {
+            res.json({
+                twtId: req.userObj.twtId
+            })
+        }
+        else {
+            res.json({
+                message: "Twitter login failed"
+            })
+        }
+    }
+)
+
+router.use('/twitter', twtRouter)
 
 module.exports = router

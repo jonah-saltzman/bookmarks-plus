@@ -1,5 +1,5 @@
 const passport = require('passport')
-const { sendResponse } = require('../responder')
+const sendResponse = require('../responder')
 const addToken = require('./addToken')
 
 function handleLogin(req, res) {
