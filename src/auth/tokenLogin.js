@@ -18,7 +18,7 @@ function handleLogin(req, res) {
             }
             if (!user) {
                 return sendResponse(req, res, {
-                    status: info.status,
+                    status: info.status || 500,
                     error: {
                         loggedIn: false,
                         message: info.message,
