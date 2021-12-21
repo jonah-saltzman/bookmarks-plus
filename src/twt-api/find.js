@@ -45,6 +45,20 @@ async function getTweet(tweets) {
         }
         return twtObj
     })
+    for (const tweet of found) {
+        const embedURL = `https://publish.twitter.com/oembed?maxheight=200&theme=dark&dnt=true&url=https://twitter.com/${tweet.includes.users.username}/status/${tweet.data.id}`
+        console.log('embed url:')
+        console.log(embedURL)
+        const htmlResponse = await fetch(
+            embedURL,
+            {method: 'GET'}
+        )
+        const htmlData = await htmlResponse.json()
+        if (htmlData) {
+            console.log('successfully fetched html')
+            tweet.data.html = htmlData.html
+        }
+    }
     return { found, notFound }
     } catch(e) {
         console.error(e)

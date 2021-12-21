@@ -18,6 +18,7 @@ async function addTweet(tweets) {
         const author = tweet.includes.users
         docsArray.push({
             twtId: data.id,
+            twtHtml: data.html,
             twtMetrics: data.public_metrics,
             twtDate: data.created_at,
             twtText: data.text,
