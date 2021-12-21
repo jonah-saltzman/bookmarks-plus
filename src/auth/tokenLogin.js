@@ -10,28 +10,23 @@ function handleLogin(req, res) {
             if (err) {
                 return sendResponse(req, res, {
                     status: 500,
-                    error: {
-                        loggedIn: false,
-                        message: "Database error"
-                    }
+                    message: "Database error",
+                    token: null
                 })
             }
             if (!user) {
                 return sendResponse(req, res, {
                     status: info.status || 500,
-                    error: {
-                        loggedIn: false,
-                        message: info.message,
-                    }
+                    message: info.message,
+                    token: null
                 })
             }
             req.login(user, {session: false}, (err) => {
                 if (err) {
                     return sendResponse(req, res, {
                         status: 500,
-                        error: {
-                            loggedIn: false,
-                            message: "Error logging in"}
+                        message: "Error logging in",
+                        token: null
                     })
                 }
                 addToken(req, res, null, user)

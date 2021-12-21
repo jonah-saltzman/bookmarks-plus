@@ -6,7 +6,7 @@ async function sendResponse(req, res, err, response, redirect) {
     }
     if (err) {
         res.status(err.status)
-        return res.json(err.error)
+        return res.json(err.message || err.error)
     }
     if (response) {
         res.status(response.status)

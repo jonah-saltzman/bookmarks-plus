@@ -30,7 +30,7 @@ passport.use(
             return done(null, user)
         } catch(error) {
             console.error(error)
-            done(error)
+            return done(error)
         }
     }
 ))
