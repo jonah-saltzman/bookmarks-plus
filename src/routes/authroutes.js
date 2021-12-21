@@ -1,17 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const handleLogin = require('../auth/tokenLogin')
+const { handleLogin, handleSignup } = require('../auth/authHandlers')
 
 // Errors during registration handled within Passport strategy
 router.post(
 	'/signup',
-	passport.authenticate('signup', {session: false}),
-	async (req, res) => {
-		res.json({
-			registered: true,
-			user: req.user,
-		})
+	(req, res) => {
+		handleSignup(req, res)
 	}
 )
 
