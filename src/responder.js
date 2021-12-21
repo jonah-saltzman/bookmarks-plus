@@ -1,9 +1,5 @@
 
 async function sendResponse(req, res, err, response, redirect) {
-    if (redirect) {
-        res.redirect(redirect.path)
-        return
-    }
     if (err) {
         res.status(err.status)
         return res.json(err.message || err.error)

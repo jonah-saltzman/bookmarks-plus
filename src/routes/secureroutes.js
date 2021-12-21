@@ -100,8 +100,8 @@ router.get(
     (req, res) => {
         invalidateToken(
             req.userObj,
-            (err, response, redirect) => {
-                sendResponse(req, res, err, response, redirect)
+            (err, response) => {
+                sendResponse(req, res, err, response)
             }
         )
     }

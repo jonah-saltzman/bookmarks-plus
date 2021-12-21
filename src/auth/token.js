@@ -19,13 +19,14 @@ const invalidateToken = async (userObj, done) => {
     const currentToken = userObj.getCurrentToken()
     const invalidToken = await userObj.invalidateToken()
     if (currentToken === invalidToken) {
-        done(
-                null,
-                null,
-                { path: '/' }
-			)
+        return done(null, {
+					status: 200,
+					response: {
+						message: `${userObj.email} signed out!`
+					},
+				})
     } else {
-        done({
+        return done({
             status: 401,
             error: {
                 signedOut: false,
