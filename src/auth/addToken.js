@@ -12,8 +12,10 @@ async function addToken(req, res, err, user, info) {
 	const token = jwt.sign({ user: tokenBody }, JWT_SECRET)
     sendResponse(req, res, null, {
         status: 200,
-        message: `${user.email} signed in!`,
-        token: token
+        response: {
+            message: `${user.email} signed in!`,
+            token: token
+        }
     })
 }
 

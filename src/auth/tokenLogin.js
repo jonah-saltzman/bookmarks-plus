@@ -11,14 +11,12 @@ function handleLogin(req, res) {
                 return sendResponse(req, res, {
                     status: 500,
                     message: "Database error",
-                    token: null
                 })
             }
             if (!user) {
                 return sendResponse(req, res, {
                     status: info.status || 500,
                     message: info.message,
-                    token: null
                 })
             }
             req.login(user, {session: false}, (err) => {
@@ -26,7 +24,6 @@ function handleLogin(req, res) {
                     return sendResponse(req, res, {
                         status: 500,
                         message: "Error logging in",
-                        token: null
                     })
                 }
                 addToken(req, res, null, user)

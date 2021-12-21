@@ -10,7 +10,7 @@ async function sendResponse(req, res, err, response, redirect) {
     }
     if (response) {
         res.status(response.status)
-        return res.json(response.message)
+        return res.json(response.response || response.message)
     }
     res.status(500)
     return res.json({message: err.err || "Unknown server error", user: req.userObj.email || null})
