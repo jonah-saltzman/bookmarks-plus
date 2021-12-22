@@ -8,6 +8,15 @@ const passport = require('passport')
 router.use(twtAuth)
 
 router.get(
+    '/test',
+    (req, res) => {
+        console.log('/user/twitter/test userObj:')
+        console.log(req.userObj)
+        res.json(req.userObj)
+    }
+)
+
+router.get(
     '/redirect',
     (req, res) => {
         if (req.userObj) {

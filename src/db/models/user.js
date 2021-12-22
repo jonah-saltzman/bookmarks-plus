@@ -32,7 +32,11 @@ const UserSchema = new Schema(
         invalidTokenIds: [{
             type: String,
             required: false
-        }]
+        }],
+        twtProfile: {
+            type: Object,
+            required: false
+        }
     },
     {
 		timestamps: true,

@@ -14,6 +14,7 @@ async function addToken(req, res, err, user, info) {
         status: 200,
         response: {
             message: `${user.email} signed in!`,
+            userId: user._id.toString(),
             token: token
         }
     })

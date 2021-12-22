@@ -11,10 +11,11 @@ const passport = require('passport')
 // Custom middleware
 const { checkToken } = require('./auth/token')
 const sendResponse = require('./responder')
+const twtAuth = require('./auth/twitter')
 
 // Express routers
 const authRouter = require('./routes/authroutes')
-const secureRouter = require('./routes/secureroutes')
+const secureRouter = require('./routes/secureroutes');
 
 // Port supplied by Heroku or set to 3000
 const PORT = process.env.PORT || 4000
@@ -31,6 +32,25 @@ app.use(passport.initialize())
 
 //app.use(logRequest)
 app.get('/', (req, res) => res.json({message: "Welcome!"}))
+
+// tokenId: await user.newToken(),
+// _id: user._id,
+// email: user.email,
+// tokenCreated: new Date()
+
+// const response = await fetch(URL, {
+// 	method: 'GET',
+// 	headers: new Headers({
+// 		authorization: 'Bearer ' + TWT_TOKEN,
+// 	}),
+// })
+
+app.get('/twtauth', twtAuth)
+
+app.get('/twttoken', (req, res) => {
+	console.log('received token from twitter:')
+	console.log(req.query)
+})
 
 // Authentication routes don't require token validation
 app.use('/auth', authRouter)
