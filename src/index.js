@@ -33,18 +33,6 @@ app.use(passport.initialize())
 //app.use(logRequest)
 app.get('/', (req, res) => res.json({message: "Welcome!"}))
 
-// tokenId: await user.newToken(),
-// _id: user._id,
-// email: user.email,
-// tokenCreated: new Date()
-
-// const response = await fetch(URL, {
-// 	method: 'GET',
-// 	headers: new Headers({
-// 		authorization: 'Bearer ' + TWT_TOKEN,
-// 	}),
-// })
-
 app.get('/twtauth', twtAuth)
 
 app.get('/twttoken', (req, res) => {

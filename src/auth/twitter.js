@@ -2,7 +2,7 @@ const fetch = require('node-fetch')
 const mongoose = require('mongoose')
 const User = require('../db/models/user')
 const { Headers } = require('node-fetch')
-const { JWT_SECRET, TWT_CLIENT_ID, TWT_CHALLENGE } = process.env
+const { TWT_CLIENT_ID, TWT_CHALLENGE, TWT_AUTH_URL, TWT_CB_URL } = process.env
 const twtAuthUrl = 'https://api.twitter.com/2/oauth2/token'
 const sendResponse = require('../responder')
 
@@ -20,7 +20,7 @@ const twtAuth = async (req, res) => {
 				code: `${twtCode}`,
 				grant_type: 'authorization_code',
 				client_id: `${TWT_CLIENT_ID}`,
-				redirect_uri: `http://127.0.0.1:4000/twtauth?user=${userId}`,
+				redirect_uri: TWT_CB_URL + userId,
 				code_verifier: `${TWT_CHALLENGE}`,
 			}
 			console.log('making request: ')
@@ -30,7 +30,7 @@ const twtAuth = async (req, res) => {
 				reqArray.push(key + '=' + reqDetails[key])
 			}
 			const reqBody = reqArray.join('&')
-			const response = await fetch(twtAuthUrl, {
+			const response = await fetch(TWT_AUTH_URL, {
 				method: 'POST',
 				headers: new Headers({
 					'Content-Type': 'application/x-www-form-urlencoded',
