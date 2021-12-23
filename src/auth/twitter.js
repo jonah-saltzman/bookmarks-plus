@@ -6,6 +6,9 @@ const { TWT_CLIENT_ID, TWT_AUTH_URL, TWT_CB_URL, CLOSE_URL } =
 const sendResponse = require('../responder')
 
 const twtAuth = async (req, res) => {
+	if (req.query.error === 'access_denied') {
+		return res.redirect(CLOSE_URL)
+	}
 	const twtCode = req.query.code || null
 	const userId = req.query.user || null
 	const twtState = req.query.state || null
@@ -19,8 +22,6 @@ const twtAuth = async (req, res) => {
 				redirect_uri: TWT_CB_URL + userId,
 				code_verifier: `${user.twtChallenge.challenge}`,
 			}
-			console.log('making request: ')
-			console.log(reqDetails)
 			const reqArray = []
 			for (const key in reqDetails) {
 				reqArray.push(key + '=' + reqDetails[key])
@@ -46,10 +47,6 @@ const twtAuth = async (req, res) => {
 						twtState: twtState
 					}
 					user.save()
-					console.log('user.twtProfile:')
-					console.log(user.twtProfile)
-					console.log('response data:')
-					console.log(data)
 					res.status(200)
 					return res.redirect(CLOSE_URL)
 				}
