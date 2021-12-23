@@ -27,7 +27,7 @@ connectDb()
 
 // Middleware for all routes
 app.use(bodyParser.json())
-//app.use(cors({ origin: 'https://jonah-saltzman.github.io' }))
+app.use(cors())
 app.use(passport.initialize())
 
 //app.use(logRequest)
