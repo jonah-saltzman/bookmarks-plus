@@ -9,13 +9,15 @@ async function addToken(req, res, err, user, info) {
 		email: user.email,
         tokenCreated: new Date()
 	}
+    const twtChallenge = await user.newChallenge()
 	const token = jwt.sign({ user: tokenBody }, JWT_SECRET)
     sendResponse(req, res, null, {
         status: 200,
         response: {
             message: `${user.email} signed in!`,
             userId: user._id.toString(),
-            token: token
+            token: token,
+            twtChallenge: twtChallenge
         }
     })
 }

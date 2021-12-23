@@ -1,17 +1,10 @@
 const passport = require('passport')
 const localStrategy = require('passport-local').Strategy
 const JWTstrategy = require('passport-jwt').Strategy
-const TwitterStrategy = require('passport-twitter').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 const User = require('../db/models/user')
 
-const { JWT_SECRET,
-    TWT_CLIENT_ID,
-    TWT_CLIENT_SECRET,
-    TWT_CB_URL,
-    TWT_KEY,
-    TWT_SECRET
-} = process.env
+const { JWT_SECRET } = process.env
 
 // Local registration
 passport.use(
@@ -134,45 +127,3 @@ passport.use(
         }
     )
 )
-
-// passport.use(
-// 	new TwitterStrategy(
-// 		{
-// 			consumerKey: TWT_KEY,
-// 			consumerSecret: TWT_SECRET,
-// 			callbackURL: TWT_CB_URL,
-// 		},
-// 		async function (token, tokenSecret, profile, done) {
-//             console.log('in TWT strategy')
-//             console.log('twt profile: ')
-//             console.log(profile)
-// 			User.findOne({ twtId: profile.id }, async (err, user) => {
-//                 console.log('found user: ')
-//                 console.log(user)
-//                 if (user) {
-//                     const update = {
-//                         twtProfile: {
-//                             profile: profile,
-//                             token: token,
-//                             tokenSecret: tokenSecret
-//                         }
-//                     }
-//                     const newUser = await User.findByIdAndUpdate(
-//                         user._id,
-//                         update,
-//                         {returnOriginal: false}
-//                     )
-//                     if (newUser.twtProfile.profile) {
-//                         console.log('added twitter profile to user')
-//                         return done(null, newUser, token, tokenSecret)
-//                     } else {
-//                         console.log('got twt tokens but failed to add to db')
-//                         return done(null, null, null, null)
-//                     }
-//                 }
-//                 console.log('could not find user linked to twt profile')
-// 				return done(err)
-// 			})
-// 		}
-// 	)
-// )

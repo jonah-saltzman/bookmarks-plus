@@ -1,19 +1,15 @@
 const fetch = require('node-fetch')
-const mongoose = require('mongoose')
 const User = require('../db/models/user')
 const { Headers } = require('node-fetch')
-const { TWT_CLIENT_ID, TWT_CHALLENGE, TWT_AUTH_URL, TWT_CB_URL, CLOSE_URL } =
+const { TWT_CLIENT_ID, TWT_AUTH_URL, TWT_CB_URL, CLOSE_URL } =
 	process.env
 const sendResponse = require('../responder')
 
 const twtAuth = async (req, res) => {
-	console.log('received credentials from twitter:')
 	const twtCode = req.query.code || null
 	const userId = req.query.user || null
-	console.log(`user: ${userId}`)
-	console.log(`code: ${twtCode}`)
+	const twtState = req.query.state || null
 	if (twtCode && userId) {
-		const objId = new mongoose.Types.ObjectId(userId)
 		const user = await User.findById(userId)
 		if (user) {
 			const reqDetails = {
@@ -21,7 +17,7 @@ const twtAuth = async (req, res) => {
 				grant_type: 'authorization_code',
 				client_id: `${TWT_CLIENT_ID}`,
 				redirect_uri: TWT_CB_URL + userId,
-				code_verifier: `${TWT_CHALLENGE}`,
+				code_verifier: `${user.twtChallenge.challenge}`,
 			}
 			console.log('making request: ')
 			console.log(reqDetails)
@@ -46,11 +42,14 @@ const twtAuth = async (req, res) => {
 					date.setMinutes(date.getMinutes() + 115)
 					user.twtProfile = {
 						token: data.access_token,
-						tokenExp: date
+						tokenExp: date,
+						twtState: twtState
 					}
-					await user.save()
-					console.log(`new access token: `)
-					console.log(data.access_token)
+					user.save()
+					console.log('user.twtProfile:')
+					console.log(user.twtProfile)
+					console.log('response data:')
+					console.log(data)
 					res.status(200)
 					return res.redirect(CLOSE_URL)
 				}

@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 
 const Schema = mongoose.Schema
-const Folder = require('./folder')
+const pkceChallenge = require('pkce-challenge')
 const { v4: uuidv4 } = require('uuid')
 
 const UserSchema = new Schema(
@@ -34,6 +34,10 @@ const UserSchema = new Schema(
             required: false
         }],
         twtProfile: {
+            type: Object,
+            required: false
+        },
+        twtChallenge: {
             type: Object,
             required: false
         }
@@ -74,6 +78,16 @@ UserSchema.methods.newToken = async function() {
     this.tokenId = newId
     await this.save()
     return this.tokenId
+}
+
+UserSchema.methods.newChallenge = async function() {
+    const newChallenge = pkceChallenge(43)
+    this.twtChallenge = {
+			challenge: newChallenge.code_challenge,
+			verifier: newChallenge.code_verifier,
+		}
+    await this.save()
+    return this.twtChallenge.challenge
 }
 
 UserSchema.methods.invalidateToken = async function() {
