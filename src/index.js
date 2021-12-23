@@ -35,11 +35,6 @@ app.get('/', (req, res) => res.json({message: "Welcome!"}))
 
 app.get('/twtauth', twtAuth)
 
-app.get('/twttoken', (req, res) => {
-	console.log('received token from twitter:')
-	console.log(req.query)
-})
-
 // Authentication routes don't require token validation
 app.use('/auth', authRouter)
 

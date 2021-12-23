@@ -2,8 +2,8 @@ const fetch = require('node-fetch')
 const mongoose = require('mongoose')
 const User = require('../db/models/user')
 const { Headers } = require('node-fetch')
-const { TWT_CLIENT_ID, TWT_CHALLENGE, TWT_AUTH_URL, TWT_CB_URL } = process.env
-const twtAuthUrl = 'https://api.twitter.com/2/oauth2/token'
+const { TWT_CLIENT_ID, TWT_CHALLENGE, TWT_AUTH_URL, TWT_CB_URL, CLOSE_URL } =
+	process.env
 const sendResponse = require('../responder')
 
 const twtAuth = async (req, res) => {
@@ -42,17 +42,17 @@ const twtAuth = async (req, res) => {
 			if (status === 200) {
 				const data = await response.json()
 				if (data) {
+					const date = new Date()
+					date.setMinutes(date.getMinutes() + 115)
 					user.twtProfile = {
 						token: data.access_token,
+						tokenExp: date
 					}
 					await user.save()
 					console.log(`new access token: `)
 					console.log(data.access_token)
 					res.status(200)
-					return res.redirect('http://localhost:3000/better-bookmarks/close')
-					return res.json({
-						message: `Successfully twitter authed user ${user.email}`,
-					})
+					return res.redirect(CLOSE_URL)
 				}
 			} else {
 				res.status(500)
