@@ -4,8 +4,9 @@ const { getTweet } = require('../twt-api/find')
 const { addTweet, searchTweet, parseTweetId } = require('./tweets')
 
 async function newFolder(folderName, userId, done) {
+	console.log(`attempting to create folder ${folderName}`)
 	const user = await User.findById(userId).populate('folders')
-	const folderNameRE = new RegExp(folderName, 'i')
+	const folderNameRE = new RegExp('^' + folderName + '$', 'i')
 	if (user.folders.some((folder) => folderNameRE.test(folder.folderName))) {
 		return done(
 			{
@@ -37,6 +38,67 @@ async function newFolder(folderName, userId, done) {
 			},
 		}
 		return done(null, response)
+	} catch (err) {
+		return done(err, null)
+	}
+}
+
+async function changeName(folderId, newName, userObj, done) {
+	console.log(`changing name of folder ${folderId} to ${newName}`)
+	await userObj.populate('folders')
+	const folderNameRE = new RegExp('^' + newName + '$', 'i')
+	if (userObj.folders.some((folder) => folderNameRE.test(folder.folderName))) {
+		return done(
+			{
+				status: 409,
+				error: {
+					renamed: false,
+					folder: false,
+					message: 'Folder name already exists',
+				},
+			},
+			false
+		)
+	}
+	const userFolders = userObj.folders.map((folder) => folder.id)
+	if (!userFolders.includes(folderId)) {
+		return done(
+			{
+				status: 404,
+				error: {
+					renamed: false,
+					folder: false,
+					message: 'User does not have folder',
+				},
+			},
+			false
+		)
+	}
+	try {
+		const folder = await Folder.findByIdAndUpdate(folderId, {
+			folderName: newName
+		})
+		const newFolder = await Folder.findById(folderId)
+		if (newFolder.folderName === newName) {
+			const response = {
+				status: 201,
+				message: {
+					renamed: true,
+					folder: newFolder.folderName,
+					folderId: newFolder._id,
+					message: `Renamed folder to ${newFolder.folderName}`,
+				},
+			}
+			return done(null, response)
+		}
+		return done({
+			status: 500,
+			error: {
+				renamed: false,
+				folder: false,
+				message: 'Error updating folder name',
+			},
+		})
 	} catch (err) {
 		return done(err, null)
 	}
@@ -336,5 +398,6 @@ module.exports = {
 	getOneFolder,
 	deleteFolder,
 	unBookmarkTweet,
-	getAllFolders
+	getAllFolders,
+	changeName
 }

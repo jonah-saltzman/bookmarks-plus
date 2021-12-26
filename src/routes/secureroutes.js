@@ -31,9 +31,24 @@ router.get(
 router.post(
     '/folders',
     (req, res) => {
+        console.log(req.body)
         folders.newFolder(
             req.body.folderName, 
             req.userObj, 
+            (err, folder) => {
+                sendResponse(req, res, err, folder)
+            }
+        )
+    }
+)
+
+router.post(
+    '/folders/:folder',
+    (req, res) => {
+        folders.changeName(
+            req.params.folder,
+            req.body.newName,
+            req.userObj,
             (err, folder) => {
                 sendResponse(req, res, err, folder)
             }

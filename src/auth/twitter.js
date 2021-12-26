@@ -46,7 +46,7 @@ const twtAuth = async (req, res) => {
 						tokenExp: date,
 						twtState: twtState
 					}
-					user.save()
+					await user.save()
 					res.status(200)
 					return res.redirect(CLOSE_URL)
 				}

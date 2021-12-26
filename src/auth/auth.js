@@ -97,11 +97,8 @@ passport.use(
                             )
                 }
                 if (user) {
-                    console.log('in JWT strategy')
                     const internalTokenId = token.user.tokenId
                     const dbTokenId = user.tokenId
-                    console.log(internalTokenId, dbTokenId)
-                    console.log(user)
                     if (dbTokenId === internalTokenId) {
                         return done(null, user)
                     } else if (user.invalidTokenIds.some(id => id === internalTokenId)) {
