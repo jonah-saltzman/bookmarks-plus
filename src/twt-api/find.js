@@ -7,59 +7,72 @@ const TWEET_SUFFIX =
 	'&tweet.fields=attachments,author_id,created_at,public_metrics,source&expansions=author_id,attachments.media_keys&media.fields=preview_image_url,url'
 
 async function getTweet(tweets) {
-    const tweetString = tweets.length > 1 ? tweets.join(',') : tweets[0]
-    const URL = TWEET_PREFIX + tweetString + TWEET_SUFFIX
+    //const tweetString = tweets.length > 1 ? tweets.join(',') : tweets[0]
+    //const URL = TWEET_PREFIX + tweetString + TWEET_SUFFIX
+    const URLs = tweets.map(twtId => TWEET_PREFIX + twtId + TWEET_SUFFIX)
+    const OPTIONS = {
+			method: 'GET',
+			headers: new Headers({
+				authorization: 'Bearer ' + TWT_TOKEN,
+			}),
+		}
     try {
-        const response = await fetch(URL, {
-            method: 'GET',
-            headers: new Headers({
-                authorization: 'Bearer ' + TWT_TOKEN
-            })
-        })
-    const data = await response.json()
-    const notFound = data.errors
-			? data.errors.map((error) => {
-					const errObj = {
-						error: 'Not found',
-						id: error.value || error.resource_id,
-					}
-					return errObj
-			  })
-			: []
-    if (!data.data) {
-        return { found: [], notFound }
-    }
-    const found = data.data.map(tweet => {
-        const twtObj = {
-            data: tweet,
-            includes: {
-                media: tweet.attachments 
-                    ? data.includes.media.filter(
-                        media => tweet.attachments.media_keys.some(
-                            key => key === media.media_key)) 
-                    : null,
-                users: data.includes.users.find(
-                    user => tweet.author_id === user.id
-                )
+        const results = {found: [], notFound: []}
+        const responses = await Promise.all(URLs.map(async (url) => {
+            const tempResult = await fetch(url, OPTIONS)
+            return tempResult.json()
+        }))
+        responses.forEach((response, i) => {
+                    console.log(`RESPONSE ${i}`)
+                    console.log(response)
+                    const data = response.errors ? null : response.data[0]
+                    if (response.errors) {
+                        console.log(response.errors[0].parameters)
+                    }
+					response.errors
+						? results.notFound.push({
+								error: 'Not found',
+								id: response.errors[0].parameters.ids[0],
+						  })
+						: results.found.push({
+								data: data,
+								includes: {
+									media: data.attachments
+										? response.includes.media.filter((media) =>
+												data.attachments.media_keys.some(
+													(key) => key === media.media_key
+												)
+										  )
+										: null,
+									users: response.includes.users.find(
+										(user) => data.author_id === user.id
+									),
+								},
+						  })
+				})
+        if (results.found.length === 0) {
+            return results
+        }
+        for (const tweet of results.found) {
+            const embedURL = `https://publish.twitter.com/oembed?maxheight=200&theme=dark&dnt=true&url=https://twitter.com/${tweet.includes.users.username}/status/${tweet.data.id}`
+            console.log('embed url:')
+            console.log(embedURL)
+            const htmlResponse = await fetch(
+                embedURL,
+                {method: 'GET'}
+            )
+            const htmlData = await htmlResponse.json()
+            if (htmlData) {
+                console.log('successfully fetched html')
+                tweet.data.html = htmlData.html
             }
         }
-        return twtObj
-    })
-    for (const tweet of found) {
-        const embedURL = `https://publish.twitter.com/oembed?maxheight=200&theme=dark&dnt=true&url=https://twitter.com/${tweet.includes.users.username}/status/${tweet.data.id}`
-        console.log('embed url:')
-        console.log(embedURL)
-        const htmlResponse = await fetch(
-            embedURL,
-            {method: 'GET'}
-        )
-        const htmlData = await htmlResponse.json()
-        if (htmlData) {
-            console.log('successfully fetched html')
-            tweet.data.html = htmlData.html
-        }
-    }
-    return { found, notFound }
+        console.log('returning FOUND: ')
+        console.log(results.found)
+        results.found.forEach(result => console.log(result.data.html))
+        console.log('returning NOT FOUND: ')
+        console.log(results.notFound)
+        return results
     } catch(e) {
         console.error(e)
         return false

@@ -269,7 +269,7 @@ async function bookmarkTweet(folderId, tweets, userObj, done) {
 		}
 		if (folder) {
 			return done(null, {
-				status: bookmarked.length ? 201 : 409,
+				status: 201,
 				message: {
 					sent: tweets.length,
 					bookmarkedCount: bookmarked.length,
