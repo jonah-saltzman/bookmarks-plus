@@ -4,6 +4,7 @@ const JWTstrategy = require('passport-jwt').Strategy
 const TwitterStrategy = require('passport-twitter').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 const User = require('../db/models/user')
+const { randomBytes } = require('crypto')
 
 const {
 	JWT_SECRET,
@@ -167,6 +168,7 @@ passport.use(
 			const newUser = await User.create({
 				twtId: profile.id,
 				twtProfile: twtProfile,
+                email: randomBytes(8).toString('hex')
 			})
 			if (newUser) {
 				console.log('created new user')
