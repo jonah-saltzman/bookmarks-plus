@@ -1,9 +1,22 @@
 const fetch = require('node-fetch')
 const User = require('../db/models/user')
 const { Headers } = require('node-fetch')
+const passport = require('passport')
 const { TWT_CLIENT_ID, TWT_AUTH_URL, TWT_CB_URL, CLOSE_URL } =
 	process.env
 const sendResponse = require('../responder')
+const addToken = require('./addToken')
+
+passport.serializeUser(function (user, done) {
+	console.log('serializing user')
+
+	done(null, user)
+})
+
+passport.deserializeUser(function (user, done) {
+	console.log('deserializing user')
+	done(null, user)
+})
 
 const twtAuth = async (req, res) => {
 	if (req.query.error === 'access_denied') {
@@ -67,4 +80,33 @@ const twtAuth = async (req, res) => {
 	return res.json({ message: 'Missing url params' })
 }
 
-module.exports = twtAuth
+const twtLogin = (req, res) => {
+	passport.authenticate('twitter')(req, res)
+}
+
+const twtLoginCB = (req, res, next) => {
+	console.log('in twtLoginCB')
+	console.log(req.params)
+	console.log(req.query)
+	console.log(req.userObj)
+	passport.authenticate('twitter', { failureRedirect: '/' }, (err, user) => {
+		console.log(`in /twtLoginCB, passport cb function`)
+		if (user) {
+			console.log('got user!')
+			req.login(user, {session: false}, (err) => {
+				if (err) {
+					console.log(err)
+					return sendResponse(req, res, err)
+				}
+				console.log('adding token')
+				addToken(req, res, null, user, {twt: true})
+			})
+		}
+	})(req, res)
+}
+
+module.exports = { 
+	twtAuth,
+	twtLogin,
+	twtLoginCB
+}

@@ -9,16 +9,17 @@ const UserSchema = new Schema(
     {
         email: {
             type: String,
-            required: true,
+            required: false,
             unique: true,
         },
         password: {
             type: String,
-            required: true,
+            required: false,
         },
         twtId: {
             type: String,
-            required: false
+            required: false,
+            unique: true,
         },
         folders: [{
             type: Schema.Types.ObjectId,

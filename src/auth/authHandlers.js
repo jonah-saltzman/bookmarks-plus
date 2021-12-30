@@ -26,7 +26,7 @@ function handleLogin(req, res) {
                         message: "Error logging in",
                     })
                 }
-                addToken(req, res, null, user)
+                addToken(req, res, null, user, { twt: false })
             })
         }
     )(req, res)

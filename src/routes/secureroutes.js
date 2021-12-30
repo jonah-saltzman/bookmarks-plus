@@ -4,8 +4,6 @@ const sendResponse = require('../responder')
 const folders = require('../db/folders')
 
 const { invalidateToken } = require('../auth/token')
-const twtAuth = require('../auth/twitter')
-const passport = require('passport')
 const twtRouter = require('./twtroutes')
 
 // Custom middleware attaches user object to req object upon
@@ -13,7 +11,7 @@ const twtRouter = require('./twtroutes')
 
 // Get array of folders belonging to authenticated user
 router.get(
-    '/folders',
+    '/folders', 
     async (req, res) => {
         folders.getAllFolders(
             req.userObj,
@@ -123,24 +121,24 @@ router.get(
 )
 
 router.get(
-    '/twtlogin',
-    (req, res, next) => {
-        twtAuth(req, res, next)
-    },
+    '/twitter',
     (req, res) => {
-        if (req.userObj.twtToken) {
-            res.json({
-                twtId: req.userObj.twtId
-            })
-        }
-        else {
-            res.json({
-                message: "Twitter login failed"
-            })
-        }
+        sendResponse(req, res, null, {
+					status: 200,
+					response: {
+						message: `${
+							req.userObj.twtProfile.data.displayName
+						} signed in!`,
+						userId: req.userObj._id.toString(),
+                        twtUser: req.userObj.twtProfile.data.username,
+						token: null,
+						twtChallenge: req.userObj.twtChallenge,
+						twtAuth: true,
+					},
+				})
     }
 )
 
-router.use('/twitter', twtRouter)
+router.use('/twt', twtRouter)
 
 module.exports = router
