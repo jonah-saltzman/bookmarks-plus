@@ -236,7 +236,7 @@ async function bookmarkTweet(folderId, tweets, userObj, done) {
 	const remainingTweets = dbTweets 
 		? parsedIds.filter(twtId => !(dbTweets.some(dbTweet => dbTweet.twtId === twtId)))
 		: parsedIds
-	const foundTweets = remainingTweets.length > 0 ? await getTweet(remainingTweets) : []
+	const foundTweets = remainingTweets.length > 0 ? await getTweet(remainingTweets, userObj) : []
 	const addedTweets = foundTweets.found ? await addTweet(foundTweets.found) : []
 	const goodTweets = addedTweets.length > 0 
 		? dbTweets.concat(addedTweets)

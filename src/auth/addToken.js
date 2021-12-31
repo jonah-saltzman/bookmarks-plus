@@ -19,6 +19,8 @@ async function addToken(req, res, err, user, {twt}) {
         const redirect = TOKEN_URL + token
         return res.redirect(redirect)
     }
+    console.log(`sending token with challenge: `)
+    console.log(twtChallenge)
     sendResponse(req, res, null, {
         status: 200,
         response: {

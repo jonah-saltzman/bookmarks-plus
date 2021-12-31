@@ -93,8 +93,6 @@ passport.use(
                             }
                         )
             }
-            console.log('JWT strategy token: ')
-            console.log(token)
             User.findOne({_id: token.user._id}, (err, user) => {
                 if (err) {
                     console.error(err)
@@ -142,14 +140,7 @@ passport.use(
 			callbackURL: TWT_LOGIN_CB_URL,
 		},
 		async function (token, tokenSecret, profile, cb) {
-			console.log(`in twitter strategy`)
-			console.log(`token: `)
-			console.log(token)
-			console.log(`secret: `)
-			console.log(tokenSecret)
-			console.log(`twtId: `)
-			console.log(profile.id)
-			const twtProfile = {
+			const twtAuth = {
 				twtId: profile.id,
 				twtToken: token,
 				twtSecret: tokenSecret,
@@ -157,17 +148,13 @@ passport.use(
 			}
 			const user = await User.findOne({ twtId: profile.id })
 			if (user) {
-				console.log(`found existing user: `)
-				console.log(user.twtId)
-				console.log(user.twtProfile)
-				console.log(user.email)
-				user.twtProfile = twtProfile
+				user.twtAuth = twtAuth
 				await user.save()
 				return cb(null, user)
 			}
 			const newUser = await User.create({
 				twtId: profile.id,
-				twtProfile: twtProfile,
+				twtAuth: twtAuth,
                 email: randomBytes(8).toString('hex')
 			})
 			if (newUser) {

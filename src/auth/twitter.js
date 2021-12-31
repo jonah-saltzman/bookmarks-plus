@@ -6,6 +6,7 @@ const { TWT_CLIENT_ID, TWT_AUTH_URL, TWT_CB_URL, CLOSE_URL } =
 	process.env
 const sendResponse = require('../responder')
 const addToken = require('./addToken')
+const getUser = require('../twt-api/me')
 
 passport.serializeUser(function (user, done) {
 	console.log('serializing user')
@@ -59,6 +60,9 @@ const twtAuth = async (req, res) => {
 						tokenExp: date,
 						twtState: twtState
 					}
+					const twtUser = await getUser(user.twtProfile.token)
+					user.twtId = twtUser
+					user.twtAuth.twtId = twtUser
 					await user.save()
 					res.status(200)
 					return res.redirect(CLOSE_URL)
@@ -85,20 +89,15 @@ const twtLogin = (req, res) => {
 }
 
 const twtLoginCB = (req, res, next) => {
-	console.log('in twtLoginCB')
-	console.log(req.params)
-	console.log(req.query)
-	console.log(req.userObj)
 	passport.authenticate('twitter', { failureRedirect: '/' }, (err, user) => {
 		console.log(`in /twtLoginCB, passport cb function`)
 		if (user) {
-			console.log('got user!')
 			req.login(user, {session: false}, (err) => {
 				if (err) {
+					console.log('error!')
 					console.log(err)
 					return sendResponse(req, res, err)
 				}
-				console.log('adding token')
 				addToken(req, res, null, user, {twt: true})
 			})
 		}

@@ -41,6 +41,10 @@ const UserSchema = new Schema(
         twtChallenge: {
             type: Object,
             required: false
+        },
+        twtAuth: {
+            type: Object,
+            required: false
         }
     },
     {
