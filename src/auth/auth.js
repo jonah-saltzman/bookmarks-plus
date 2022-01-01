@@ -9,8 +9,7 @@ const { randomBytes } = require('crypto')
 const {
 	JWT_SECRET,
 	TWT_KEY: TWITTER_CONSUMER_KEY,
-	TWT_SECRET: TWITTER_CONSUMER_SECRET,
-    TWT_LOGIN_CB_URL
+	TWT_SECRET: TWITTER_CONSUMER_SECRET
 } = process.env
 
 // Local registration
@@ -84,6 +83,8 @@ passport.use(
             jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('JWT')
         },
         (token, done) => {
+            console.log('in JWT strategy')
+            console.log(token)
             if (!token) {
                 return done(
                             {

@@ -69,6 +69,13 @@ UserSchema.pre('save', async function(next) {
         console.log('hashing password')
         this.password = await bcrypt.hash(this.password, 10)
     }
+    if (!this.twtChallenge) {
+        const newChallenge = pkceChallenge(43)
+        this.twtChallenge = {
+            challenge: newChallenge.code_challenge,
+            verifier: newChallenge.code_verifier,
+        }
+    }
     next()
 })
 
