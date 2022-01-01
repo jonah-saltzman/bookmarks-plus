@@ -29,12 +29,7 @@ async function getTweet(tweets, user) {
             return tempResult.json()
         }))
         responses.forEach((response, i) => {
-                    console.log(`RESPONSE ${i}`)
-                    console.log(response)
                     const data = response.errors ? null : response.data[0]
-                    if (response.errors) {
-                        console.log(response.errors[0].parameters)
-                    }
 					response.errors
 						? results.notFound.push({
 								error: 'Not found',
@@ -60,24 +55,16 @@ async function getTweet(tweets, user) {
             return results
         }
         for (const tweet of results.found) {
-            const embedURL = `https://publish.twitter.com/oembed?maxheight=200&theme=dark&dnt=true&url=https://twitter.com/${tweet.includes.users.username}/status/${tweet.data.id}`
-            console.log('embed url:')
-            console.log(embedURL)
+            const embedURL = `https://publish.twitter.com/oembed?maxheight=200&theme=dark&dnt=true&omit_script=true&url=https://twitter.com/${tweet.includes.users.username}/status/${tweet.data.id}`
             const htmlResponse = await fetch(
                 embedURL,
                 {method: 'GET'}
             )
             const htmlData = await htmlResponse.json()
             if (htmlData) {
-                console.log('successfully fetched html')
                 tweet.data.html = htmlData.html
             }
         }
-        console.log('returning FOUND: ')
-        console.log(results.found)
-        results.found.forEach(result => console.log(result.data.html))
-        console.log('returning NOT FOUND: ')
-        console.log(results.notFound)
         return results
     } catch(e) {
         console.error(e)

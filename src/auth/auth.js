@@ -30,8 +30,7 @@ passport.use(
             }
             const user = await User.create({
                 email: email,
-                password: password,
-                twtId: req.body.twtId
+                password: password
             })
             return done(null, user)
         } catch(error) {
@@ -146,9 +145,9 @@ passport.use(
 				twtSecret: tokenSecret,
 				data: profile,
 			}
-			const user = await User.findOne({ twtId: profile.id })
+			const user = await User.findOne( {"twtAuth.twtId": profile.id} )
 			if (user) {
-				user.twtAuth = twtAuth
+				//user.twtAuth = twtAuth
 				await user.save()
 				return cb(null, user)
 			}
@@ -166,3 +165,21 @@ passport.use(
 		}
 	)
 )
+
+const changePassword = async (user, oldPass, newPass, done) => {
+    if (!user.password) {
+        return done({status: 405, error: {message: 'Invalid account type'}})
+    }
+    const valid = await user.isValidPassword(oldPass)
+    if (!valid) {
+        return done({status: 401, error: {message: 'Invalid password'}})
+    }
+    if (valid) {
+        const changed = await user.updatePassword(newPass)
+        return changed
+            ? done(null, {status: 204})
+            : done({status: 500, error: {message: 'Failed to change password'}})
+    }
+}
+
+module.exports = changePassword

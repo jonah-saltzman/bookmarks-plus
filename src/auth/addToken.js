@@ -14,6 +14,8 @@ async function addToken(req, res, err, user, {twt}) {
         tokenBody.email = user.email
     }
     const twtChallenge = await user.newChallenge()
+    console.log(`in addToken, challenge: `)
+    console.log(twtChallenge)
 	const token = jwt.sign({ user: tokenBody }, JWT_SECRET)
     if (twt) {
         const redirect = TOKEN_URL + token

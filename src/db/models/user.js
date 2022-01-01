@@ -66,6 +66,7 @@ const UserSchema = new Schema(
 
 UserSchema.pre('save', async function(next) {
     if (this.modifiedPaths().some(path => path === 'password')) {
+        console.log('hashing password')
         this.password = await bcrypt.hash(this.password, 10)
     }
     next()
@@ -107,6 +108,17 @@ UserSchema.methods.invalidateToken = async function() {
 
 UserSchema.methods.getCurrentToken = function() {
     return this.tokenId
+}
+
+UserSchema.methods.updatePassword = async function(newPassword) {
+    const oldHash = this.password
+    this.password = newPassword
+    await this.save()
+    console.log('oldHash: ')
+    console.log(oldHash)
+    console.log('newHash: ')
+    console.log(this.password)
+    return oldHash !== this.password
 }
 
 const User = mongoose.model('User', UserSchema)

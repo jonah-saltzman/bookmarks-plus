@@ -22,7 +22,9 @@ const invalidateToken = async (userObj, done) => {
         return done(null, {
 					status: 200,
 					response: {
-						message: `${userObj.email} signed out!`
+						message: `${
+							userObj.twtAuth?.data?.displayName || userObj.email
+						} signed out!`,
 					},
 				})
     } else {

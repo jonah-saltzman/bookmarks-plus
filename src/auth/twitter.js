@@ -62,7 +62,9 @@ const twtAuth = async (req, res) => {
 					}
 					const twtUser = await getUser(user.twtProfile.token)
 					user.twtId = twtUser
-					user.twtAuth.twtId = twtUser
+					if (user.twtAuth) {
+						user.twtAuth.twtId = twtUser
+					}
 					await user.save()
 					res.status(200)
 					return res.redirect(CLOSE_URL)

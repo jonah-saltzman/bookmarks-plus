@@ -4,7 +4,7 @@ const { Headers } = require('node-fetch')
 
 const getLikes = async (user, done) => {
     console.log(user)
-    const twtUser = user.twtAuth.twtId
+    const twtUser = user.twtAuth?.twtId || user.twtId
     const twtToken = user.twtProfile.token
     if (!twtUser || !twtToken) {
         return done({status: 400, message: 'Please retry Twitter login.'})

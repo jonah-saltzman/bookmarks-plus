@@ -6,6 +6,7 @@ const folders = require('../db/folders')
 const { invalidateToken } = require('../auth/token')
 const twtRouter = require('./twtroutes')
 const getLikes = require('../twt-api/likes')
+const changePassword = require('../auth/auth')
 
 // Custom middleware attaches user object to req object upon
 // successful token validation
@@ -123,6 +124,20 @@ router.get(
     }
 )
 
+router.patch(
+    '/password',
+    (req, res) => {
+        changePassword(
+            req.userObj,
+            req.body.old,
+            req.body.new,
+            (err, response) => {
+                sendResponse(req, res, err, response)
+            }
+        )
+    }
+)
+
 router.get(
     '/likes',
     (req, res) => {
@@ -147,8 +162,9 @@ router.get(
 						userId: req.userObj._id.toString(),
                         twtUser: req.userObj.twtAuth.data.username,
 						token: null,
-						twtChallenge: req.userObj.twtChallenge,
+						twtChallenge: req.userObj.twtChallenge.challenge,
 						twtAuth: true,
+                        twtName: req.userObj.twtAuth.data.displayName
 					},
 				})
     }
