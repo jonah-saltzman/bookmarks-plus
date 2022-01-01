@@ -3,6 +3,8 @@ const sendResponse = require('../responder')
 const addToken = require('./addToken')
 
 function handleLogin(req, res) {
+    console.log('received client state: ')
+    console.log(req.body.twtState)
 	passport.authenticate(
         'login',
         { session: false },
@@ -19,14 +21,23 @@ function handleLogin(req, res) {
                     message: info.message,
                 })
             }
-            req.login(user, {session: false}, (err) => {
+            req.login(user, {session: false}, async (err) => {
                 if (err) {
                     return sendResponse(req, res, {
                         status: 500,
                         message: "Error logging in",
                     })
                 }
-                addToken(req, res, null, user, { twt: false })
+                const newState = await user.addState(req.body.twtState)
+                if (newState === req.body.twtState) {
+                    console.log('updated state on non-twt login')
+                    return addToken(req, res, null, user, { twt: false })
+                } else {
+                    return sendResponse(req, res, {
+                        status: 500,
+                        message: "Error updating state",
+                    })
+                }
             })
         }
     )(req, res)
@@ -60,5 +71,5 @@ function handleSignup(req, res) {
 
 module.exports = { 
     handleLogin,
-    handleSignup
+    handleSignup,
 }

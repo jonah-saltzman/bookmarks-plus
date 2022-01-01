@@ -8,6 +8,9 @@ async function sendResponse(req, res, err, response, redirect) {
         res.status(response.status)
         return res.json(response.response || response.message)
     }
+    if (redirect) {
+        return res.redirect(redirect)
+    }
     res.status(500)
     return res.json({message: err.err || "Unknown server error", user: req.userObj.email || null})
 }

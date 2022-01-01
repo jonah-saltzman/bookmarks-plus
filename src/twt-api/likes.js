@@ -3,7 +3,6 @@ const fetch = require('node-fetch')
 const { Headers } = require('node-fetch')
 
 const getLikes = async (user, done) => {
-    console.log(user)
     const twtUser = user.twtAuth?.twtId || user.twtId
     const twtToken = user.twtProfile.token
     if (!twtUser || !twtToken) {

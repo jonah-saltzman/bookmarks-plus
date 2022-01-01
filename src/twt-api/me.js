@@ -13,7 +13,7 @@ const getUser = async (twtToken) => {
         return false
     }
     const data = await response.json()
-    return data.data.id
+    return data
 }
 
 module.exports = getUser

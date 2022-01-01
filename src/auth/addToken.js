@@ -13,14 +13,13 @@ async function addToken(req, res, err, user, {twt}) {
     } else {
         tokenBody.email = user.email
     }
-    const twtChallenge = await user.newChallenge()
-    console.log(`in addToken, challenge: `)
-    console.log(twtChallenge)
 	const token = jwt.sign({ user: tokenBody }, JWT_SECRET)
     if (twt) {
         const redirect = TOKEN_URL + token
+        console.log('redirecting to close with token')
         return res.redirect(redirect)
     }
+    const twtChallenge = await user.newChallenge()
     console.log(`sending token with challenge: `)
     console.log(twtChallenge)
     sendResponse(req, res, null, {

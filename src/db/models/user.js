@@ -121,6 +121,15 @@ UserSchema.methods.updatePassword = async function(newPassword) {
     return oldHash !== this.password
 }
 
+UserSchema.methods.addState = async function(newState) {
+    console.log(`attempting to set new state on user ${this._id}:`)
+    console.log(newState)
+    this.twtProfile = {...this.twtProfile, twtState: newState}
+    await this.save()
+    console.log(`returning new state: ${this.twtProfile.twtState}`)
+    return this.twtProfile.twtState
+}
+
 const User = mongoose.model('User', UserSchema)
 
 module.exports = User

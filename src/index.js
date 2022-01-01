@@ -48,8 +48,8 @@ app.use(passport.session())
 app.get('/', (req, res) => res.json({message: "Welcome!"}))
 
 app.get('/twtauth', twtAuth)
-app.get('/twtlogin', twtLogin)
-app.get('/twtlogincb', twtLoginCB)
+// app.get('/twtlogin', twtLogin)
+// app.get('/twtlogincb', twtLoginCB)
 
 // Authentication routes don't require token validation
 app.use('/auth', authRouter)
