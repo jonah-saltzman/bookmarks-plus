@@ -1,10 +1,8 @@
 const passport = require('passport')
 const localStrategy = require('passport-local').Strategy
 const JWTstrategy = require('passport-jwt').Strategy
-const TwitterStrategy = require('passport-twitter').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 const User = require('../db/models/user')
-const { randomBytes } = require('crypto')
 
 const {
 	JWT_SECRET,
@@ -83,8 +81,6 @@ passport.use(
             jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('JWT')
         },
         (token, done) => {
-            console.log('in JWT strategy')
-            console.log(token)
             if (!token) {
                 return done(
                             {
@@ -131,35 +127,6 @@ passport.use(
         }
     )
 )
-
-// passport.use(
-// 	new TwitterStrategy(
-// 		{
-// 			consumerKey: TWITTER_CONSUMER_KEY,
-// 			consumerSecret: TWITTER_CONSUMER_SECRET,
-// 			callbackURL: TWT_LOGIN_CB_URL,
-// 		},
-// 		async function (token, tokenSecret, profile, cb) {
-// 			const user = await User.findOne( {"twtAuth.twtId": profile.id} )
-// 			if (user) {
-// 				//user.twtAuth = twtAuth
-// 				await user.save()
-// 				return cb(null, user)
-// 			}
-// 			const newUser = await User.create({
-// 				twtId: profile.id,
-// 				twtAuth: twtAuth,
-//                 email: randomBytes(8).toString('hex')
-// 			})
-// 			if (newUser) {
-// 				console.log('created new user')
-// 				return cb(null, newUser)
-// 			}
-// 			console.log('UNKNOWN ERROR')
-// 			return cb({ error: 'Unknown error' }, null)
-// 		}
-// 	)
-// )
 
 const changePassword = async (user, oldPass, newPass, done) => {
     if (!user.password) {
