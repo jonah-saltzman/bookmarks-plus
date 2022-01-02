@@ -112,6 +112,22 @@ router.patch(
     }
 )
 
+router.patch(
+    '/folders/share/:folder',
+    (req, res) => {
+        console.log(`reqest to set folder ${req.params.folder} to shared=${req.body.shared}`)
+        console.log(req.body)
+        folders.setShared(
+            req.params.folder,
+            req.body.shared,
+            req.userObj,
+            (err, response) => {
+                sendResponse(req, res, err, response)
+            }
+        )
+    }
+)
+
 router.get(
     '/signout',
     (req, res) => {

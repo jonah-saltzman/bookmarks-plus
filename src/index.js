@@ -16,6 +16,7 @@ const { twtAuth } = require('./auth/twitter')
 // Express routers
 const authRouter = require('./routes/authroutes')
 const secureRouter = require('./routes/secureroutes');
+const { getSharedFolder } = require('./db/folders');
 
 // Port supplied by Heroku or set to 3000
 const PORT = process.env.PORT || 4000
@@ -32,7 +33,7 @@ app.use(passport.initialize())
 
 //app.use(logRequest)
 app.get('/', (req, res) => res.json({message: "Welcome!"}))
-
+app.use('/shared', getSharedFolder)
 app.get('/twtauth', twtAuth)
 
 // Authentication routes don't require token validation

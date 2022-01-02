@@ -5,6 +5,8 @@ async function sendResponse(req, res, err, response, redirect) {
         return res.json(err.message || err.error)
     }
     if (response) {
+        console.log('sending response with status ', response.status)
+        console.log(response)
         res.status(response.status)
         return res.json(response.response || response.message)
     }

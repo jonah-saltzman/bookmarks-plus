@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const Str = require('@supercharge/strings')
 
 const Schema = mongoose.Schema
 
@@ -16,8 +17,34 @@ const FolderSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Tweet',
         required: false
-    }]
+    }],
+    shared: {
+        type: Boolean,
+        required: true,
+    },
+    url: {
+        type: String,
+        required: false
+    }
 })
+
+FolderSchema.pre('save', async function(next) {
+    if (!('shared' in this)) {
+        console.log('no share value, setting false')
+        this.shared = false
+    }
+    next()
+})
+
+FolderSchema.methods.setShared = async function (value) {
+    console.log(`setting folder ${this._id} to shard=${value}`)
+    this.shared = value || false
+    if (value) {
+        this.url = Str.random(15)
+    }
+    await this.save()
+    return value ? this.url : false
+}
 
 FolderSchema.methods.getFolderTweets = async function() {
     return await this.populate('tweets').tweets.map(tweet => {

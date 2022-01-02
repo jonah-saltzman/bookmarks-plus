@@ -2,6 +2,29 @@ const Folder = require('./models/folder')
 const User = require('./models/user')
 const { getTweet } = require('../twt-api/find')
 const { addTweet, searchTweet, parseTweetId } = require('./tweets')
+const sendResponse = require('../responder')
+
+async function setShared(folderId, value, userObj, done) {
+	await userObj.populate('folders')
+	const userFolders = userObj.folders.map((folder) => folder.id)
+	if (!userFolders.includes(folderId)) {
+		return done(
+			{ status: 404, error: { message: 'User does not have folder' } }
+		)
+	}
+	const folder = await Folder.findById(folderId)
+	if (!folder) {
+		return done(
+			{ status: 404, error: { message: 'User does not have folder' } }
+		)
+	}
+	const result = await folder.setShared(value)
+	if (value && result) {
+
+		return done(null, { status: 200, response: {shared: true, url: result}})
+	}
+	return done (null, { status: 200, response: { shared: false, url: null } })
+}
 
 async function newFolder(folderName, userId, done) {
 	const user = await User.findById(userId).populate('folders')
@@ -318,6 +341,8 @@ async function getAllFolders(userObj, done) {
 	const folders = userObj.folders.map((folder) => {
 		return {
 			folderName: folder.folderName,
+			shared: folder.shared,
+			url: folder.url || null,
 			folderId: folder._id,
 			tweets: folder.tweets.map((tweet) => {
 				return {
@@ -390,6 +415,29 @@ async function deleteFolder(folderId, userObj, done) {
 	)
 }
 
+async function getSharedFolder(req, res) {
+	const url = req.body.url
+	console.log(`request for url: ${url}`)
+	const folder = await Folder.findOne({url: url})
+	if (!folder) {
+		return sendResponse(req, res, {status: 404, error: 'Folder not found'})
+	}
+	if (!folder.shared || !folder.url) {
+		return sendResponse(req, res, {status: 401, error: 'Folder is not shared'})
+	}
+	await folder.populate('tweets')
+	console.log(folder)
+	const folderObj = {
+		folderName: folder.folderName,
+		tweets: folder.tweets
+	}
+	const response = {
+		status: 200,
+		response: {folder: folder},
+	}
+	sendResponse(req, res, null, response)
+}
+
 module.exports = {
 	newFolder,
 	bookmarkTweet,
@@ -397,5 +445,7 @@ module.exports = {
 	deleteFolder,
 	unBookmarkTweet,
 	getAllFolders,
-	changeName
+	changeName,
+	setShared,
+	getSharedFolder
 }
