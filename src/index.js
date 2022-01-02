@@ -29,9 +29,7 @@ connectDb()
 // Middleware for all routes
 app.use(bodyParser.json())
 app.use(cors())
-app.use(session({ secret: 'SECRET' }))
 app.use(passport.initialize())
-app.use(passport.session())
 
 // app.use((req, res, next) => {
 // 	console.log('============================================')
