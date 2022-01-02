@@ -12,7 +12,7 @@ const session = require('express-session')
 // Custom middleware
 const { checkToken } = require('./auth/token')
 const sendResponse = require('./responder')
-const { twtAuth, twtLogin, twtLoginCB } = require('./auth/twitter')
+const { twtAuth } = require('./auth/twitter')
 
 // Express routers
 const authRouter = require('./routes/authroutes')
@@ -31,23 +31,10 @@ app.use(bodyParser.json())
 app.use(cors())
 app.use(passport.initialize())
 
-// app.use((req, res, next) => {
-// 	console.log('============================================')
-// 	console.log(req.url)
-// 	console.log(req.method)
-// 	console.log(req.params)
-// 	console.log(req.query)
-// 	console.log(req.body)
-// 	console.log('============================================')
-// 	next()
-// })
-
 //app.use(logRequest)
 app.get('/', (req, res) => res.json({message: "Welcome!"}))
 
 app.get('/twtauth', twtAuth)
-// app.get('/twtlogin', twtLogin)
-// app.get('/twtlogincb', twtLoginCB)
 
 // Authentication routes don't require token validation
 app.use('/auth', authRouter)
