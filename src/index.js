@@ -7,7 +7,6 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const connectDb = require('./db/mongoose');
 const passport = require('passport')
-const session = require('express-session')
 
 // Custom middleware
 const { checkToken } = require('./auth/token')

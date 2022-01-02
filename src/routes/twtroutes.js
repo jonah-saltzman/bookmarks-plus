@@ -8,7 +8,7 @@ const { refreshTwitter } = require('../auth/twitter')
 router.post(
     '/check',
     async (req, res) => {
-        let validAuth = checkTwtAuth(req.userObj, req.body.state)
+        let validAuth = await checkTwtAuth(req.userObj, req.body.state)
         if (validAuth) {
             console.log('valid twitter auth')
             return res.status(200).json({ authenticated: validAuth})
@@ -21,7 +21,7 @@ router.post(
         }
         console.log('new token: ')
         console.log(req.userObj.twtProfile.token)
-        validAuth = checkTwtAuth(req.userObj, req.body.state)
+        validAuth = await checkTwtAuth(req.userObj, req.body.state)
         res.status(validAuth ? 200 : 401).json({authenticated: validAuth})
     }
 )

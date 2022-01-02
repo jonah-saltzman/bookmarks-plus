@@ -121,19 +121,12 @@ UserSchema.methods.updatePassword = async function(newPassword) {
     const oldHash = this.password
     this.password = newPassword
     await this.save()
-    console.log('oldHash: ')
-    console.log(oldHash)
-    console.log('newHash: ')
-    console.log(this.password)
     return oldHash !== this.password
 }
 
 UserSchema.methods.addState = async function(newState) {
-    console.log(`attempting to set new state on user ${this._id}:`)
-    console.log(newState)
     this.twtProfile = {...this.twtProfile, twtState: newState}
     await this.save()
-    console.log(`returning new state: ${this.twtProfile.twtState}`)
     return this.twtProfile.twtState
 }
 

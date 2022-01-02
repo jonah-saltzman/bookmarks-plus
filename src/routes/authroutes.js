@@ -23,7 +23,6 @@ router.post(
 router.post(
     '/twitter',
     (req, res) => {
-        console.log('got request to /twitter')
         newTwtLogin(
             req.body.state,
             (err, response, redirect) => {

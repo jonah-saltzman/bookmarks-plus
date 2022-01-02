@@ -1,30 +1,28 @@
 const Login = require('./models/login')
 const User = require('./models/user')
 const { randomBytes } = require('crypto')
+const getUser = require('../twt-api/me')
 
-const checkTwtAuth = ({twtProfile}, clientState) => {
-    console.log(`dbState: `, twtProfile.twtState)
-    console.log(`clientState: `, clientState)
+const checkTwtAuth = async ({twtProfile}, clientState) => {
     if (!twtProfile.token || !twtProfile.twtState || !twtProfile.tokenExp) {
-        console.log('missing parameter')
         return false
     }
     if (twtProfile.twtState !== clientState) {
-        console.log('bad state')
         return false
     }
     if (twtProfile.tokenExp < (new Date())) {
-        console.log('expired twtToken')
         return false
     }
-    console.log('valid twtAuth')
+    const apiResult = await getUser(twtProfile.token)
+    if (!apiResult) {
+        return false
+    }
     return true
 }
 
 const newTwtLogin = async (state, done) => {
     const existingLogin = await Login.findOne({loginState: state})
     if (existingLogin) {
-        console.log('found existing challenge')
         return done(null, {
 					status: 200,
 					response: { challenge: existingLogin.loginChallenge.challenge },
@@ -76,10 +74,8 @@ const performTwitterLogin = async (userData, tokenInfo, newState, done) => {
         email: randomBytes(8).toString('hex'),
     })
     if (newUser) {
-        console.log('created new user')
         return done(null, newUser)
     }
-    console.log('UNKNOWN ERROR')
     return done({ error: 'Unknown error' })
 }
 

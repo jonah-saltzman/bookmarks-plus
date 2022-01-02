@@ -18,7 +18,7 @@ const twtAuth = async (req, res) => {
 	const data = req.query.data || null
 	const [type, userId] = data.split('.')
 	if (!twtCode || !twtState || !data) {
-		return sendResponse(req, res, {status: 400, error: {message: 'Missing url parameters'}})
+		return sendResponse(req, res, null, null, CLOSE_URL)
 	}
 	let challenge = null
 	let dbObject = null
@@ -31,8 +31,10 @@ const twtAuth = async (req, res) => {
 		challenge = dbLogin?.loginChallenge?.challenge
 		dbObject = dbLogin
 	}
+	console.log('dbObject:')
+	console.log(dbObject)
 	if (!challenge) {
-		return sendResponse(req, res, {status: 500, error: {message: 'Database error'}})
+		return sendResponse(req, res, null, null, CLOSE_URL)
 	}
 	const reqDetails = {
 		code: `${twtCode}`,
@@ -52,14 +54,26 @@ const twtAuth = async (req, res) => {
 					}),
 					body: request,
 				})
-	console.log(`response status: ${response.status}`)
 	if (response.status !== 200) {
-		return sendResponse(req, res, {status: 500, error: {message: 'Twitter API error'}})
+		return sendResponse(req, res, null, null, CLOSE_URL)
 	}
 	const responseData = await response.json()
+	console.log('responseData:')
 	console.log(responseData)
 	const userData = await getUser(responseData.access_token)
+	console.log('userData:')
+	console.log(userData)
 	if (type === 'auth') {
+		const otherUser = await User.findOne({twtId: userData.data.id})
+		console.log('otherUser_id:')
+		console.log(otherUser._id)
+		console.log('dbObject_id')
+		console.log(dbObject._id)
+		console.log(otherUser._id.toString() !== dbObject._id.toString())
+		if (otherUser && otherUser._id.toString() !== dbObject._id.toString()) {
+			console.log('account already linked')
+			return sendResponse(req, res, null, null, CLOSE_URL)
+		}
 		const date = new Date()
 		date.setMinutes(date.getMinutes() + 115)
 		dbObject.twtProfile = {
@@ -69,8 +83,6 @@ const twtAuth = async (req, res) => {
 		}
 		dbObject.twtId = userData.data.id
 		dbObject.save()
-		console.log('logged in user with state: ')
-		console.log(twtState)
 		return sendResponse(req, res, null, null, CLOSE_URL)
 	}
 	performTwitterLogin(
@@ -79,7 +91,7 @@ const twtAuth = async (req, res) => {
 		twtState,
 		(err, user) => {
 			if (err) {
-				sendResponse(req, res, err)
+				return sendResponse(req, res, null, null, CLOSE_URL)
 			}
 			if (user) {
 				addToken(req, res, null, user, { twt: true })
@@ -104,7 +116,6 @@ const refreshTwitter = async (req, res) => {
 		}),
 		body: request,
 	})
-	console.log(`response status: ${response.status}`)
 	if (response.status !== 200) {
 		return false
 	}

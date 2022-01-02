@@ -3,8 +3,6 @@ const sendResponse = require('../responder')
 const addToken = require('./addToken')
 
 function handleLogin(req, res) {
-    console.log('received client state: ')
-    console.log(req.body.twtState)
 	passport.authenticate(
         'login',
         { session: false },
@@ -30,7 +28,6 @@ function handleLogin(req, res) {
                 }
                 const newState = await user.addState(req.body.twtState)
                 if (newState === req.body.twtState) {
-                    console.log('updated state on non-twt login')
                     return addToken(req, res, null, user, { twt: false })
                 } else {
                     return sendResponse(req, res, {

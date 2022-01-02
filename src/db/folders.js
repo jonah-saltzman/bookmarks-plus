@@ -4,7 +4,6 @@ const { getTweet } = require('../twt-api/find')
 const { addTweet, searchTweet, parseTweetId } = require('./tweets')
 
 async function newFolder(folderName, userId, done) {
-	console.log(`attempting to create folder ${folderName}`)
 	const user = await User.findById(userId).populate('folders')
 	const folderNameRE = new RegExp('^' + folderName + '$', 'i')
 	if (user.folders.some((folder) => folderNameRE.test(folder.folderName))) {
@@ -44,7 +43,6 @@ async function newFolder(folderName, userId, done) {
 }
 
 async function changeName(folderId, newName, userObj, done) {
-	console.log(`changing name of folder ${folderId} to ${newName}`)
 	await userObj.populate('folders')
 	const folderNameRE = new RegExp('^' + newName + '$', 'i')
 	if (userObj.folders.some((folder) => folderNameRE.test(folder.folderName))) {
@@ -75,7 +73,7 @@ async function changeName(folderId, newName, userObj, done) {
 		)
 	}
 	try {
-		const folder = await Folder.findByIdAndUpdate(folderId, {
+		await Folder.findByIdAndUpdate(folderId, {
 			folderName: newName
 		})
 		const newFolder = await Folder.findById(folderId)
