@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const Schema = mongoose.Schema
 const pkceChallenge = require('pkce-challenge')
 const { v4: uuidv4 } = require('uuid')
+const { randomBytes } = require('crypto')
 
 const UserSchema = new Schema(
     {
@@ -76,6 +77,7 @@ UserSchema.pre('save', async function(next) {
             verifier: newChallenge.code_verifier,
         }
     }
+    console.log(this)
     next()
 })
 

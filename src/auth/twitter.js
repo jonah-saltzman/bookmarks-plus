@@ -65,11 +65,6 @@ const twtAuth = async (req, res) => {
 	console.log(userData)
 	if (type === 'auth') {
 		const otherUser = await User.findOne({twtId: userData.data.id})
-		console.log('otherUser_id:')
-		console.log(otherUser._id)
-		console.log('dbObject_id')
-		console.log(dbObject._id)
-		console.log(otherUser._id.toString() !== dbObject._id.toString())
 		if (otherUser && otherUser._id.toString() !== dbObject._id.toString()) {
 			console.log('account already linked')
 			return sendResponse(req, res, null, null, CLOSE_URL)

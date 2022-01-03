@@ -3,6 +3,7 @@ const localStrategy = require('passport-local').Strategy
 const JWTstrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 const User = require('../db/models/user')
+const { randomBytes } = require('crypto')
 
 const {
 	JWT_SECRET,
@@ -27,7 +28,8 @@ passport.use(
             }
             const user = await User.create({
                 email: email,
-                password: password
+                password: password,
+                twtId: randomBytes(8).toString('hex')
             })
             return done(null, user)
         } catch(error) {
