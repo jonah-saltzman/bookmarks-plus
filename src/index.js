@@ -32,7 +32,10 @@ app.use(cors())
 app.use(passport.initialize())
 
 //app.use(logRequest)
-app.get('/', (req, res) => res.json({message: "Welcome!"}))
+app.get('/', (req, res) => {
+	console.log('server spinning up')
+	res.json({message: "Welcome!"})
+})
 app.use('/shared', getSharedFolder)
 app.get('/twtauth', twtAuth)
 

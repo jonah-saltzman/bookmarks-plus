@@ -46,6 +46,7 @@ async function newFolder(folderName, userId, done) {
 		const folder = await Folder.create({
 			user: userId,
 			folderName: folderName,
+			shared: false,
 		})
 		await User.findByIdAndUpdate(folder.user, {
 			$push: { folders: folder._id },
