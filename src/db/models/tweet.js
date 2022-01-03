@@ -29,7 +29,7 @@ const TweetSchema = new Schema({
     },
     twtHtml: {
         type: String,
-        required: true
+        required: false
     },
     twtMedia: [MediaSchema]
 })
