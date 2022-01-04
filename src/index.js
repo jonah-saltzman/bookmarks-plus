@@ -1,6 +1,8 @@
 require('dotenv').config();
 require('./auth/auth')
 
+const Tweet = require('./db/models/tweet')
+
 // NPM Middleware
 const express = require('express')
 const bodyParser = require('body-parser')
@@ -17,6 +19,7 @@ const { twtAuth } = require('./auth/twitter')
 const authRouter = require('./routes/authroutes')
 const secureRouter = require('./routes/secureroutes');
 const { getSharedFolder } = require('./db/folders');
+const serveImage = require('./db/image')
 
 // Port supplied by Heroku or set to 3000
 const PORT = process.env.PORT || 4000
@@ -36,6 +39,7 @@ app.get('/', (req, res) => {
 	console.log('server spinning up')
 	res.json({message: "Welcome!"})
 })
+app.get('/img/:key', serveImage)
 app.use('/shared', getSharedFolder)
 app.get('/twtauth', twtAuth)
 

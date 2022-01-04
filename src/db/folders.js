@@ -290,7 +290,7 @@ async function bookmarkTweet(folderId, tweets, userObj, done) {
 			})
 		}
 		if (folder) {
-			return done(null, {
+			done(null, {
 				status: 201,
 				message: {
 					sent: tweets.length,
@@ -304,6 +304,10 @@ async function bookmarkTweet(folderId, tweets, userObj, done) {
 					badIds: badIds
 				},
 			})
+			for (const tweet of addedTweets) {
+				console.log('saving tweet', tweet.twtId)
+				tweet.fetchImages()
+			}
 		}
 	})
 }

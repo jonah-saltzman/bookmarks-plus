@@ -3,7 +3,9 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const MediaSchema = require('./twtmedia')
-const Folder = require('./folder')
+const Image = require('./image')
+
+const extRE = new RegExp(/(?:\/[a-zA-Z0-9_-]+\.)([a-zA-Z]+$)/i)
 
 const TweetSchema = new Schema({
 	twtId: {
@@ -33,6 +35,24 @@ const TweetSchema = new Schema({
     },
     twtMedia: [MediaSchema]
 })
+
+TweetSchema.methods.fetchImages = async function () {
+    if (this.twtMedia && this.twtMedia?.length > 0) {
+        const imageObjs = this.twtMedia.map(media => ({
+					media_key: media.key,
+					url: media.url,
+					type: media.url.match(extRE)[1],
+				}))
+        const images = await Image.insertMany(imageObjs)
+        if (images) {
+            for (const image of images) {
+                image.exists = false
+                image.download()
+            }
+        }
+        return `created ${images.length} images for twt-${this.twtId}`
+    }
+}
 
 const Tweet = mongoose.model('Tweet', TweetSchema)
 
