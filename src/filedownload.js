@@ -5,10 +5,7 @@ const downloadImage = async (url, done) => {
         const bufferArray = []
         response.on('data', (data) => bufferArray.push(data))
         response.on('end', () => {
-            const buffer = Buffer.concat(bufferArray)
-            console.log(url)
-            console.log('type of buffer: ', typeof buffer)
-            done(null, buffer)
+            return done(null, Buffer.concat(bufferArray))
         })
     })
     .on('error', e => done(e, null))

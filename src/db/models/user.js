@@ -67,7 +67,6 @@ const UserSchema = new Schema(
 
 UserSchema.pre('save', async function(next) {
     if (this.modifiedPaths().some(path => path === 'password')) {
-        console.log('hashing password')
         this.password = await bcrypt.hash(this.password, 10)
     }
     if (!this.twtChallenge) {
@@ -77,7 +76,6 @@ UserSchema.pre('save', async function(next) {
             verifier: newChallenge.code_verifier,
         }
     }
-    console.log(this)
     next()
 })
 

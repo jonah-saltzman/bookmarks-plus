@@ -31,8 +31,6 @@ const twtAuth = async (req, res) => {
 		challenge = dbLogin?.loginChallenge?.challenge
 		dbObject = dbLogin
 	}
-	console.log('dbObject:')
-	console.log(dbObject)
 	if (!challenge) {
 		return sendResponse(req, res, null, null, CLOSE_URL)
 	}
@@ -58,15 +56,10 @@ const twtAuth = async (req, res) => {
 		return sendResponse(req, res, null, null, CLOSE_URL)
 	}
 	const responseData = await response.json()
-	console.log('responseData:')
-	console.log(responseData)
 	const userData = await getUser(responseData.access_token)
-	console.log('userData:')
-	console.log(userData)
 	if (type === 'auth') {
 		const otherUser = await User.findOne({twtId: userData.data.id})
 		if (otherUser && otherUser._id.toString() !== dbObject._id.toString()) {
-			console.log('account already linked')
 			return sendResponse(req, res, null, null, CLOSE_URL)
 		}
 		const date = new Date()

@@ -11,8 +11,6 @@ async function searchTweet(tweets) {
 }
 
 async function addTweet(tweets) {
-    console.log('adding tweets: ')
-    console.log(tweets)
     const docsArray = []
     for (const tweet of tweets) {
         const data = tweet.data

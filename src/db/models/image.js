@@ -29,7 +29,6 @@ const ImageSchema = new Schema({
 
 ImageSchema.methods.download = async function (){
     if (this.data && this.exists) {
-        console.log('returning')
         return
     }
     downloadImage(this.url, (err, buffer) => {

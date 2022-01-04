@@ -40,7 +40,6 @@ const newTwtLogin = async (state, done) => {
 }
 
 const performTwitterLogin = async (userData, tokenInfo, newState, done) => {
-    console.log(userData)
     const refresh = tokenInfo.scope.split(' ').includes('offline.access')
     const twtAuth = {
 			twtId: userData.id,

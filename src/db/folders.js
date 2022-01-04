@@ -305,7 +305,6 @@ async function bookmarkTweet(folderId, tweets, userObj, done) {
 				},
 			})
 			for (const tweet of addedTweets) {
-				console.log('saving tweet', tweet.twtId)
 				tweet.fetchImages()
 			}
 		}
@@ -423,7 +422,6 @@ async function deleteFolder(folderId, userObj, done) {
 
 async function getSharedFolder(req, res) {
 	const url = req.body.url
-	console.log(`request for url: ${url}`)
 	const folder = await Folder.findOne({url: url})
 	if (!folder) {
 		return sendResponse(req, res, {status: 404, error: 'Folder not found'})
@@ -432,7 +430,6 @@ async function getSharedFolder(req, res) {
 		return sendResponse(req, res, {status: 401, error: 'Folder is not shared'})
 	}
 	await folder.populate('tweets')
-	console.log(folder)
 	const response = {
 		status: 200,
 		response: {folder: folder},

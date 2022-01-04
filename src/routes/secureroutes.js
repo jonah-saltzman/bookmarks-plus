@@ -31,7 +31,6 @@ router.get(
 router.post(
     '/folders',
     (req, res) => {
-        console.log(req.body)
         folders.newFolder(
             req.body.folderName, 
             req.userObj, 
@@ -85,8 +84,6 @@ router.delete(
 router.put(
     '/folders/:folder',
     (req, res) => {
-        console.log('adding tweets:')
-        console.log(req.body.tweets)
         folders.bookmarkTweet(
             req.params.folder,
             req.body.tweets,
@@ -115,8 +112,6 @@ router.patch(
 router.patch(
     '/folders/share/:folder',
     (req, res) => {
-        console.log(`reqest to set folder ${req.params.folder} to shared=${req.body.shared}`)
-        console.log(req.body)
         folders.setShared(
             req.params.folder,
             req.body.shared,

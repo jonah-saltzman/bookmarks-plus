@@ -9,10 +9,6 @@ const getLikes = async (user, done) => {
         return done({status: 400, message: 'Please retry Twitter login.'})
     }
 	const URL = `https://api.twitter.com/2/users/${twtUser}/liked_tweets`
-	console.log(`twtUser:`, twtUser)
-	console.log('twtToken', twtToken)
-	console.log('url:')
-	console.log(URL)
 	const response = await fetch(URL, {
 		method: 'GET',
 		headers: new Headers({

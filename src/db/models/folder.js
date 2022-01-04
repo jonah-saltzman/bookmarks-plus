@@ -30,14 +30,12 @@ const FolderSchema = new Schema({
 
 FolderSchema.pre('save', async function(next) {
     if (!('shared' in this)) {
-        console.log('no share value, setting false')
         this.shared = false
     }
     next()
 })
 
 FolderSchema.methods.setShared = async function (value) {
-    console.log(`setting folder ${this._id} to shard=${value}`)
     this.shared = value || false
     if (value) {
         this.url = Str.random(15)
