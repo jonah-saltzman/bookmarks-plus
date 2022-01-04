@@ -413,6 +413,7 @@ async function deleteFolder(folderId, userObj, done) {
 					deleted: true,
 					message: `Deleted folder ${folder.folderName}`,
 					folder: folder,
+                    folderId: folder._id
 				},
 			}
 			return done(null, response)
@@ -432,10 +433,6 @@ async function getSharedFolder(req, res) {
 	}
 	await folder.populate('tweets')
 	console.log(folder)
-	const folderObj = {
-		folderName: folder.folderName,
-		tweets: folder.tweets
-	}
 	const response = {
 		status: 200,
 		response: {folder: folder},

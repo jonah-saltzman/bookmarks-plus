@@ -1,5 +1,4 @@
 const Image = require('./models/image')
-const sendResponse = require('../responder')
 
 const serveImage = async (req, res) => {
     const mediaKey = req.params.key

@@ -1,5 +1,4 @@
 var https = require('https')
-const fs = require('fs')
 
 const downloadImage = async (url, done) => {
 	https.get(url, (response) => {
