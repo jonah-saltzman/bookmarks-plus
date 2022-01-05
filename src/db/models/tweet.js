@@ -47,18 +47,14 @@ TweetSchema.methods.fetchImages = async function () {
         console.log('inserted images into db')
         console.log(images)
         if (images) {
-            const added = await Promise.all(images.map(async image => {
-                const result = await image.download()
-                console.log('image: ', image, 'result: ', result)
-                return result
-            }))
+            const added = await Promise.all(images.map(image => image.download()))
             console.log('added array:')
             console.log(added)
             const success = added.every((result) => result === true)
             console.log(`success: `, success)
-            return success
+            return success || images.length === 0
         } else {
-            return false
+            return true
         }
     }
 }

@@ -14,25 +14,22 @@ async function handleDeleted(twtId, user, done) {
     }
     dbResult = await Tweet.findOne({twtId: twtId})
     if (dbResult) {
-        console.log('found tweet')
         return done(null, {status: 200, response: {tweet: dbResult}})
     }
     try {
-        console.log('getting tweet from twitter')
         const tweet = await getTweet([twtId], user)
         if (tweet.found.length > 0) {
-            console.log('found, adding...')
             const added = await addTweet(tweet.found)
             if (added.length > 0) {
-                console.log('added tweet: ')
-                console.log(added)
-                const finished = await added[0].fetchImages()
-                if (finished) {
-                    console.log('all images added')
-                    return done(null, { status: 200, response: { tweet: added[0] } })
+                if (added[0].twtMedia.length > 0) {
+                    const finished = await added[0].fetchImages()
+                    if (finished) {
+                        return done(null, { status: 200, response: { tweet: added[0] } })
+                    } else {
+                        return done({status: 500, error: 'Couldnt get images'})
+                    }
                 } else {
-                    console.log('failed to add images')
-                    return done({status: 500, error: 'Couldnt get images'})
+                    return done(null, { status: 200, response: { tweet: added[0] } })
                 }
             } else {
                 return done({status: 500, error: 'Failed to add tweet to DB'})

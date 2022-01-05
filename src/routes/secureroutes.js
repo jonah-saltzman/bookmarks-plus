@@ -182,16 +182,12 @@ router.get(
 				})
     }
 )
-//include state in request
+
 router.post(
     '/deleted/:twtId',
     async (req, res) => {
-        console.log('received request for deleted tweet')
         if (await checkTwtAuth(req.userObj, req.body.state)) {
-            console.log('twtAuth is valid')
             handleDeleted(req.params.twtId, req.userObj, (err, response) => {
-                console.log(err, response)
-                console.log('SENDING RESPONSE')
                 sendResponse(req, res, err, response)
             })
         } else {
@@ -199,6 +195,7 @@ router.post(
         }
     }
 )
+
 router.use('/twt', twtRouter)
 
 module.exports = router
