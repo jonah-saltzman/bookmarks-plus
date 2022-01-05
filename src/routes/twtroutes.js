@@ -9,6 +9,7 @@ router.post(
     '/check',
     async (req, res) => {
         let validAuth = await checkTwtAuth(req.userObj, req.body.state)
+        console.log('first check: validAuth=', validAuth)
         if (validAuth) {
             return res.status(200).json({ authenticated: validAuth})
         }
@@ -16,6 +17,7 @@ router.post(
             await refreshTwitter(req, res)
         }
         validAuth = await checkTwtAuth(req.userObj, req.body.state)
+        console.log('second check: validAuth=', validAuth)
         res.status(validAuth ? 200 : 401).json({authenticated: validAuth})
     }
 )

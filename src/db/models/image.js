@@ -31,19 +31,20 @@ ImageSchema.methods.download = async function (){
     if (this.data && this.exists) {
         return
     }
-    downloadImage(this.url, (err, buffer) => {
-        if (err) {
-            console.error(err)
-            this.exists = false
-            this.data = null
-            this.save()
-        } else if (buffer) {
-            this.exists = true
-            this.data = buffer
-            this.save()
-            console.log('added buffer size ', this.data.length, ' for ', this.media_key)
-        }
-    })
+    const result = await downloadImage(this.url)
+    if (result) {
+        this.exists = true
+        this.data = result
+        await this.save()
+        console.log('image downloaded, returning true')
+        return true
+    } else {
+        this.exists = false
+        this.data = null
+        await this.save()
+        console.log('download failed, returning false')
+        return false
+    }
 }
 
 ImageSchema.methods.getBuffer = async function() {

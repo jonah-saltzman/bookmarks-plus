@@ -7,6 +7,8 @@ const { invalidateToken } = require('../auth/token')
 const twtRouter = require('./twtroutes')
 const getLikes = require('../twt-api/likes')
 const changePassword = require('../auth/auth')
+const { checkTwtAuth } = require('../db/twitter')
+const { handleDeleted } = require('../db/tweets')
 
 // Custom middleware attaches user object to req object upon
 // successful token validation
@@ -180,7 +182,23 @@ router.get(
 				})
     }
 )
-
+//include state in request
+router.post(
+    '/deleted/:twtId',
+    async (req, res) => {
+        console.log('received request for deleted tweet')
+        if (await checkTwtAuth(req.userObj, req.body.state)) {
+            console.log('twtAuth is valid')
+            handleDeleted(req.params.twtId, req.userObj, (err, response) => {
+                console.log(err, response)
+                console.log('SENDING RESPONSE')
+                sendResponse(req, res, err, response)
+            })
+        } else {
+            sendResponse(req, res, {status: 400, message: "Retry Twitter login"}, null)
+        }
+    }
+)
 router.use('/twt', twtRouter)
 
 module.exports = router

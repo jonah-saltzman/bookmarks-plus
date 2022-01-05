@@ -1,7 +1,49 @@
+const { response } = require('express')
 const Tweet = require('./models/tweet')
 const urlTwtIdRE = new RegExp(/(?:\/)(\d+)(?:\/|\?|$)/)
 const twtIdRE = new RegExp(/^\d+$/)
 const altIdRE = new RegExp(/(?:^|\D)(\d+)(?:\D|$)/)
+const { getTweet } = require('../twt-api/find')
+
+//response.status & response.response
+
+async function handleDeleted(twtId, user, done) {
+    let dbResult;
+    if (!twtId) {
+        return done({status: 400, error: 'Missing parameter'}, null)
+    }
+    dbResult = await Tweet.findOne({twtId: twtId})
+    if (dbResult) {
+        console.log('found tweet')
+        return done(null, {status: 200, response: {tweet: dbResult}})
+    }
+    try {
+        console.log('getting tweet from twitter')
+        const tweet = await getTweet([twtId], user)
+        if (tweet.found.length > 0) {
+            console.log('found, adding...')
+            const added = await addTweet(tweet.found)
+            if (added.length > 0) {
+                console.log('added tweet: ')
+                console.log(added)
+                const finished = await added[0].fetchImages()
+                if (finished) {
+                    console.log('all images added')
+                    return done(null, { status: 200, response: { tweet: added[0] } })
+                } else {
+                    console.log('failed to add images')
+                    return done({status: 500, error: 'Couldnt get images'})
+                }
+            } else {
+                return done({status: 500, error: 'Failed to add tweet to DB'})
+            }
+        } else {
+            return done({status: 503, error: 'Tweet no longer exists'})
+        }
+    } catch(err) {
+        return done(err, null)
+    }
+}
 
 async function searchTweet(tweets) {
     const results = await Tweet.find({
@@ -59,5 +101,6 @@ function parseTweetId(tweets) {
 module.exports = {
     addTweet,
     searchTweet,
-    parseTweetId
+    parseTweetId,
+    handleDeleted
 }

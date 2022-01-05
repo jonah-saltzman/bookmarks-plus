@@ -44,15 +44,29 @@ TweetSchema.methods.fetchImages = async function () {
 					type: media.url.match(extRE)[1],
 				}))
         const images = await Image.insertMany(imageObjs)
+        console.log('inserted images into db')
+        console.log(images)
         if (images) {
-            for (const image of images) {
-                image.exists = false
-                image.download()
-            }
+            const added = await Promise.all(images.map(async image => {
+                const result = await image.download()
+                console.log('image: ', image, 'result: ', result)
+                return result
+            }))
+            console.log('added array:')
+            console.log(added)
+            const success = added.every((result) => result === true)
+            console.log(`success: `, success)
+            return success
+        } else {
+            return false
         }
-        return `created ${images.length} images for twt-${this.twtId}`
     }
 }
+
+// for (const image of images) {
+// 	image.exists = false
+// 	image.download()
+// }
 
 const Tweet = mongoose.model('Tweet', TweetSchema)
 
