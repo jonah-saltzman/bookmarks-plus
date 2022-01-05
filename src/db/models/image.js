@@ -29,25 +29,16 @@ const ImageSchema = new Schema({
 
 ImageSchema.methods.download = async function (){
     if (this.data && this.exists) {
-        return
-    }
-    const result = await downloadImage(this.url)
-    if (result) {
-        this.exists = true
-        this.data = result
-        await this.save()
-        console.log('image downloaded, returning true')
         return true
-    } else {
-        this.exists = false
-        this.data = null
-        await this.save()
-        console.log('download failed, returning false')
-        return false
     }
+    const data = await downloadImage(this.url)
+    this.exists = data ? true : false
+    this.data = data ? data : null
+    await this.save()
+    return this.exists
 }
 
-ImageSchema.methods.getBuffer = async function() {
+ImageSchema.methods.getBuffer = function() {
     if (!this.data || !this.exists) {
         return false
     }

@@ -44,15 +44,10 @@ TweetSchema.methods.fetchImages = async function () {
 					type: media.url.match(extRE)[1],
 				}))
         const images = await Image.insertMany(imageObjs)
-        console.log('inserted images into db')
-        console.log(images)
         if (images) {
             const added = await Promise.all(images.map(image => image.download()))
-            console.log('added array:')
-            console.log(added)
-            const success = added.every((result) => result === true)
-            console.log(`success: `, success)
-            return success || images.length === 0
+            const succeeded = added.every((result) => result === true)
+            return succeeded || images.length === 0
         } else {
             return true
         }
