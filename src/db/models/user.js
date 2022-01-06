@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 
 const Schema = mongoose.Schema
 const pkceChallenge = require('pkce-challenge')
+const Folder = require('./folder')
 const { v4: uuidv4 } = require('uuid')
 const { randomBytes } = require('crypto')
 
@@ -81,6 +82,25 @@ UserSchema.pre('save', async function(next) {
 
 UserSchema.methods.isValidPassword = async function(password) {
     return await bcrypt.compare(password, this.password)
+}
+
+UserSchema.methods.createFolder = async function(folderName) {
+    const folder = await Folder.create({
+        user: this._id,
+        folderName: folderName,
+        shared: false,
+    })
+    if (this.folders) {
+        this.folders.push(folder._id)
+    } else {
+        this.folders = [folder._id]
+    }
+    await this.save()
+    if (this.folders.some(userFolder => userFolder._id === folder._id)) {
+        return true
+    } else {
+        return false
+    }
 }
 
 UserSchema.methods.newToken = async function() {

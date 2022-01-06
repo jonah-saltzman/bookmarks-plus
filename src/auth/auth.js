@@ -31,6 +31,7 @@ passport.use(
                 password: password,
                 twtId: randomBytes(8).toString('hex')
             })
+            await user.createFolder('My First Folder')
             return done(null, user)
         } catch(error) {
             console.error(error)

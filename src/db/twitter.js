@@ -73,7 +73,11 @@ const performTwitterLogin = async (userData, tokenInfo, newState, done) => {
         email: randomBytes(8).toString('hex'),
     })
     if (newUser) {
-        return done(null, newUser)
+        if (await newUser.createFolder('My First Folder')) {
+            return done(null, newUser)
+        } else {
+            return done({ error: 'Failed to create first folder' })
+        }
     }
     return done({ error: 'Unknown error' })
 }
