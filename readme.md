@@ -8,7 +8,7 @@ Please see the [client readme](https://github.com/jonah-saltzman/better-bookmark
 # Server
 
 <figure>
-<img align="center" width="464" height="200" src="https://i.imgur.com/2uePfZe.png">
+<img align="center" src="https://i.imgur.com/0RLSXQM.png">
 <figcaption align="center">Twitter Dev Portal</figcaption>
 </figure>
 
