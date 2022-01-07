@@ -1,5 +1,4 @@
 const fetch = require('node-fetch')
-const { refreshTwitter } = require('../auth/twitter')
 const { Headers } = require('node-fetch')
 
 const getLikes = async (user, done) => {
