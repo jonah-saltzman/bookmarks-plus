@@ -1,6 +1,8 @@
 require('dotenv').config();
 require('./auth/auth')
 
+const os = require('os')
+
 const Tweet = require('./db/models/tweet')
 
 // NPM Middleware
@@ -57,4 +59,5 @@ app.use(sendResponse)
 
 app.listen(PORT, async () => {
 	console.log(`listening on port ${PORT}`)
+	console.log(`hostname: ${os.hostname()}`)
 })
