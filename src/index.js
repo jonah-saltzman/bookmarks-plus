@@ -3,8 +3,6 @@ require('./auth/auth')
 
 const os = require('os')
 
-const Tweet = require('./db/models/tweet')
-
 // NPM Middleware
 const express = require('express')
 const bodyParser = require('body-parser')
