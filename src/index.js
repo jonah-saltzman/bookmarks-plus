@@ -39,7 +39,7 @@ app.use(passport.initialize())
 //app.use(logRequest)
 app.get('/', (req, res) => {
 	console.log('server spinning up')
-	res.json({message: "Welcome!"})
+	res.redirect('https://bookmarks.jonahsaltzman.dev')
 })
 app.get('/img/:key', serveImage)
 app.use('/shared', getSharedFolder)
