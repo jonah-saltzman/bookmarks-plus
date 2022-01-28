@@ -24,6 +24,10 @@ const ImageSchema = new Schema({
     exists: {
         type: Boolean,
         required: false
+    },
+    inAWS: {
+        type: Boolean,
+        required: false
     }
 })
 
